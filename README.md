@@ -1,5 +1,6 @@
 # Workr
 
+A simple productivity app that allows multiple users to work together on shared projects.
 
 
 
