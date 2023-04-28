@@ -3,11 +3,11 @@ import { useRecoilValue } from 'recoil';
 import { loggedIn } from '../recoil/state.js';
 
 function NavBar() {
-    loggedIn = useRecoilValue(loggedIn)
+    const login = useRecoilValue(loggedIn)
 
     return (
         <>
-            <span>
+            <span id='navbar'>
                 <h2>Home</h2>
                 <h2>{loggedIn ? 'Log out' : 'Log in'}</h2>
             </span>
