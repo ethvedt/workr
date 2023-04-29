@@ -9,7 +9,7 @@ function NavBar() {
         <>
             <span id='navbar'>
                 <h2>Home</h2>
-                <h2>{loggedIn ? 'Log out' : 'Log in'}</h2>
+                <h2>{login ? 'Log out' : 'Log in'}</h2>
             </span>
         </>
     )

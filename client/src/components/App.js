@@ -1,7 +1,7 @@
 import React, { useEffect } from "react";
-import { Switch, Route } from "react-router-dom";
+import { Outlet } from "react-router-dom";
 import NavBar from './NavBar.js';
-import { useRecoilState, useSetRecoilState } from 'recoil';
+import { useRecoilState } from 'recoil';
 import { userAtom } from "../recoil/state.js";
 
 function App() {
@@ -29,9 +29,7 @@ function App() {
       </span>
       <hr />
       <div id='body'>
-        <Switch>
-
-        </Switch>
+        <Outlet />
       </div>
     </>
   )
