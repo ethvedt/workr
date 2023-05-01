@@ -2,9 +2,9 @@ import React, { useEffect } from "react";
 import { Outlet, redirect } from "react-router-dom";
 import { useRecoilState } from 'recoil';
 import { userAtom } from "../recoil/state.js";
-import NavBar from './NavBar.js'
+import NavBar from './NavBar.js';
 
-function App() {
+export default function App() {
   const [user, setUser] = useRecoilState(userAtom);
 
 
@@ -23,7 +23,7 @@ function App() {
             return redirect('login');
           }
           else {
-            return redirect('/home');
+            return redirect('home');
           }
         })
       }
@@ -36,10 +36,10 @@ function App() {
 
   return (
     <div>
-      <span className='topbar'>
+      <div className='topbar'>
         <h1>Workr</h1>
-        {/* <NavBar /> */}
-      </span>
+        <NavBar />
+      </div>
       <hr />
       <div className='body'>
         <Outlet />
@@ -48,5 +48,3 @@ function App() {
   )
 
 }
-
-export default App;

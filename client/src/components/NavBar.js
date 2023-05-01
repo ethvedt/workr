@@ -1,4 +1,5 @@
-import React, { Link } from 'react';
+import React from 'react';
+import { Link } from 'react-router-dom'
 import { useRecoilValue, useSetRecoilState } from 'recoil';
 import { loggedIn, userAtom } from '../recoil/state.js';
 

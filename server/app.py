@@ -9,7 +9,7 @@ from sqlalchemy.exc import IntegrityError
 
 # Local imports
 from config import app, db, api
-from models import User
+from models import User, Project, ProjectMember, Team, TeamMember, Todo, Message
 
 # Views go here!
 
@@ -62,8 +62,22 @@ class Users(Resource):
             return make_response({'error': 'error 400: Username already taken!'}, 400)
         except TypeError or ValueError:
             return make_response({'error': 'error 400: Invalid username!'}, 400)
+        
+api.add_resource(Users, '/users')
             
+class ProjectsByUserId(Resource):
+    def get(self, id):
+        p_list = Project.query.filter(Project.user_id==id).all()
+        return make_response(p_list.to_dict(only=('id', 'title', 'team_id', 'todos')), 200)
+    
+api.add_resource(ProjectsByUserId, '/users/<int:id>/projects')
 
+class ProjectsByTeamId(Resource):
+    def get(self, id):
+        p_list = Project.query.filter(Project.team_id==id).all()
+        return make_response(p_list.to_dict(only=('id', 'title', 'team_id', 'todos')), 200)
+
+api.add_resource(ProjectsByTeamId, '/teams/<int:id>/projects')
 
 if __name__ == '__main__':
     app.run(port=5555, debug=True)
