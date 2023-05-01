@@ -34,3 +34,16 @@ class User(DefaultBase):
 
     def auth(self, p):
         return bcrypt.check_password_hash(self.password, p)
+    
+    @validates('username')
+    def validate_username(self, key, username):
+        if not username:
+            raise TypeError('No username given.')
+        elif type(username) is not str:
+            raise TypeError('Username must be a string.')
+        elif username.isalnum():
+            raise ValueError('Username must be alphanumeric.')
+        elif len(username) < 4 or len(username) > 32:
+            return ValueError('Username must be between 4 and 32 characters.')
+        else:
+            return username

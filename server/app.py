@@ -23,7 +23,7 @@ class Login(Resource):
         if user.auth(req.password) == False:
             return make_response({'error': 'Authentication failed'}, 401)
         session['user_id'] = user.id
-        return make_response()
+        return make_response(user.to_dict(only=('username', 'id')), 200)
     
 api.add_resource(Login, '/login')
     
@@ -43,6 +43,27 @@ class Logout(Resource):
         return make_response('', 204)
     
 api.add_resource(Logout, '/logout')
+
+class Users(Resource):
+    def get(self):
+        u_list = User.query.all()
+
+        return make_response(u_list.to_dict(only=('username', 'id')), 200)
+    
+    def post(self):
+        req = request.get_json()
+
+        try:
+            u = User(username=req['username'], password=req['password'])
+            db.session.add(u)
+            db.session.commit()
+            return make_response(u.to_dict(only=('username', 'id')), 200)
+        except IntegrityError:
+            return make_response({'error': 'error 400: Username already taken!'}, 400)
+        except TypeError or ValueError:
+            return make_response({'error': 'error 400: Invalid username!'}, 400)
+            
+
 
 if __name__ == '__main__':
     app.run(port=5555, debug=True)
