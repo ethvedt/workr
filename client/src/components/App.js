@@ -1,8 +1,8 @@
 import React, { useEffect } from "react";
-import { Outlet } from "react-router-dom";
-import NavBar from './NavBar.js';
+import { Outlet, redirect } from "react-router-dom";
 import { useRecoilState } from 'recoil';
 import { userAtom } from "../recoil/state.js";
+import NavBar from './NavBar.js'
 
 function App() {
   const [user, setUser] = useRecoilState(userAtom);
@@ -12,26 +12,39 @@ function App() {
     fetch('/check_session')
     .then(r => {
       if (r.ok) {
-         r.json().then(data => setUser({
-          id: data.id,
-          username: data.username,
-         }))
+         r.json().then(data => {
+          if (data !== user) {
+            setUser({
+            id: data.id,
+            username: data.username,
+           })
+          };
+          if (user.id === null) {
+            return redirect('login');
+          }
+          else {
+            return redirect('/home');
+          }
+        })
+      }
+      else {
+        return redirect('login');
       }
     })
-  }, [])
+  }, [user])
 
 
   return (
-    <>
-      <span id='topbar'>
+    <div>
+      <span className='topbar'>
         <h1>Workr</h1>
-        <NavBar />
+        {/* <NavBar /> */}
       </span>
       <hr />
-      <div id='body'>
+      <div className='body'>
         <Outlet />
       </div>
-    </>
+    </div>
   )
 
 }

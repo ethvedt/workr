@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useRecoilState } from 'recoil';
 import AccountForm from './AccountForm';
+import { userAtom } from '../recoil/state'
 
 
 export default function Login() {

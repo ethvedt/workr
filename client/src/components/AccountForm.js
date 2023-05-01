@@ -11,7 +11,7 @@ export default function AccountForm({ handleSubmit }) {
             .required('Username is required.')
             .test(
                 'is-alnum',
-                `${path} is not alphanumeric.`,
+                `$Username must not contain any special characters.`,
                 (val, context) => {return val.isalnum()},
             ),
         password: yup.string()
