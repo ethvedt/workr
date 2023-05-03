@@ -23,10 +23,10 @@ class User(DefaultBase):
     username = db.Column(db.String, unique=True)
     _password = db.Column(db.String)
 
-    project_members = db.relationship('ProjectMember', backref='user')
+    project_members = db.relationship('ProjectMember', backref='user', cascade='all, delete-orphan')
+    messages = db.relationship('Message', backref='user', cascade='all, delete-orphan')
+    todos = db.relationship('Todo', backref='user', cascade='all, delete-orphan')
     projects = association_proxy('project_members', 'project')
-    messages = db.relationship('ProjectMessage', backref='user')
-    todos = db.relationship('Todo', backref='user')
 
     @hybrid_property
     def password(self):
@@ -46,8 +46,8 @@ class User(DefaultBase):
             raise TypeError('No username given.')
         elif type(username) is not str:
             raise TypeError('Username must be a string.')
-        elif username.isalnum():
-            raise ValueError('Username must be alphanumeric.')
+        # elif username.isalnum():
+        #     raise ValueError('Username must be alphanumeric.')
         elif len(username) < 4 or len(username) > 32:
             raise ValueError('Username must be between 4 and 32 characters.')
         else:
@@ -60,11 +60,10 @@ class Project(DefaultBase):
     title = db.Column(db.String)
     team_id = db.Column(db.Integer, db.ForeignKey('teams.id'), nullable=True)
 
-    project_members = db.relationship('ProjectMember', backref='project')
+    project_members = db.relationship('ProjectMember', backref='project', cascade='all, delete-orphan')
     users = association_proxy('project_members', 'user')
-    messages = db.relationship('ProjectMessage', backref='project')
-    todos = db.relationship('Todo', backref='project')
-
+    messages = db.relationship('Message', backref='project', cascade='all, delete-orphan')
+    todos = db.relationship('Todo', backref='project', cascade='all, delete-orphan')
 
 class ProjectMember(DefaultBase):
     __tablename__ = 'projectmembers'
@@ -72,6 +71,8 @@ class ProjectMember(DefaultBase):
     project_id = db.Column(db.Integer, db.ForeignKey('projects.id'))
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
     user_role = db.Column(db.String)
+
+    serialize_rules=('-created_at', '-updated_at', '-project', '-user')
 
     @validates('user_role')
     def val_user_role(self, role):
@@ -88,8 +89,8 @@ class Team(DefaultBase):
     company = db.Column(db.String, nullable=True)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
 
-    projects = db.relationship('Project', backref='team')
-    team_members = db.relationship('TeamMember', backref='team')
+    projects = db.relationship('Project', backref='team', cascade='all, delete-orphan')
+    team_members = db.relationship('TeamMember', backref='team', cascade='all, delete-orphan')
     users = association_proxy('team_members', 'user')
 
 class TeamMember(DefaultBase):
@@ -98,10 +99,12 @@ class TeamMember(DefaultBase):
     team_id = db.Column(db.Integer, db.ForeignKey('teams.id'))
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
     user_role = db.Column(db.String)
+
+    serialize_rules=('-created_at', '-updated_at', '-team', '-user')
     
     @validates('user_role')
     def val_user_role(self, role):
-        role_list = ['manager', 'senior', 'junior']
+        role_list = ['owner', 'manager', 'senior', 'junior']
         if role not in role_list:
             raise ValueError(f'Invalid role: {role}')
         else:
@@ -133,3 +136,6 @@ class Message(DefaultBase):
 
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
     project_id = db.Column(db.Integer, db.ForeignKey('projects.id'))
+
+    serialize_rules=('-created_at', '-project', '-user')
+

@@ -20,15 +20,15 @@ export default function App() {
            })
           };
           if (user.id === null) {
-            return redirect('login');
+            redirect('login');
           }
           else {
-            return redirect('home');
+            redirect('home');
           }
         })
       }
       else {
-        return redirect('login');
+        redirect('login');
       }
     })
   }, [user])

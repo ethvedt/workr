@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { redirect } from 'react-router-dom';
 import { useRecoilState } from 'recoil';
 import AccountForm from './AccountForm';
 import { userAtom } from '../recoil/state'
@@ -30,7 +31,16 @@ export default function Login() {
         })
         .then((res) => {
             if (res.ok) {
-                res.json().then()
+                res.json().then( data => {
+                    setUser({
+                        username: data.username,
+                        id: data.id
+                    });
+                    redirect('/home');
+                })
+            }
+            else {
+                alert(res.error)
             }
         })
     }
@@ -47,12 +57,12 @@ export default function Login() {
                 <button onClick={handleToggle}>Create an account</button>
             </div> 
         )}
-        return (
-            <div className='create-account'>
-                <h3>Create an account now.</h3>
-                <AccountForm handleSubmit={handleCreateAccount} />
-                <button onClick={handleToggle}>Log in</button>
-            </div> 
+    return (
+        <div className='create-account'>
+            <h3>Create an account now.</h3>
+            <AccountForm handleSubmit={handleCreateAccount} />
+            <button onClick={handleToggle}>Log in</button>
+        </div> 
 
     )
 

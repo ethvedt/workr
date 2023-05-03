@@ -25,7 +25,7 @@ class Login(Resource):
         session['user_id'] = user.id
         return make_response(user.to_dict(only=('username', 'id')), 200)
     
-api.add_resource(Login, '/login')
+api.add_resource(Login, '/login/')
     
 class CheckSession(Resource):
     def get(self):
@@ -60,7 +60,9 @@ class Users(Resource):
             return make_response(u.to_dict(only=('username', 'id')), 200)
         except IntegrityError:
             return make_response({'error': 'error 400: Username already taken!'}, 400)
-        except TypeError or ValueError:
+        except TypeError:
+            return make_response({'error': 'error 400: Invalid username type!'}, 400)
+        except ValueError:
             return make_response({'error': 'error 400: Invalid username!'}, 400)
         
 api.add_resource(Users, '/users')
@@ -94,7 +96,7 @@ api.add_resource(UsersById, '/users/<int:id>')
 class ProjectsByUserId(Resource):
     def get(self, id):
         p_list = Project.query.filter(Project.user_id==id).all()
-        return make_response(p_list.to_dict(only=('id', 'title', 'team_id', 'todos')), 200)
+        return make_response(p_list.to_dict(only=('id', 'title', 'team.name', 'todos')), 200)
     
 api.add_resource(ProjectsByUserId, '/users/<int:id>/projects')
 
@@ -108,7 +110,7 @@ api.add_resource(TeamsByUserId, '/users/<int:id>/teams')
 class ProjectsByTeamId(Resource):
     def get(self, id):
         p_list = Project.query.filter(Project.team_id==id).all()
-        return make_response(p_list.to_dict(only=('id', 'title', 'team_id', 'todos')), 200)
+        return make_response(p_list.to_dict(only=('id', 'title', 'team', 'todos')), 200)
 
 api.add_resource(ProjectsByTeamId, '/teams/<int:id>/projects')
 
@@ -142,6 +144,20 @@ class Projects(Resource):
 
 api.add_resource(Projects, '/projects')
 
+class ProjectMembersByProjectId(Resource):
+    def get(self, id):
+        pm = ProjectMember.query.filter(ProjectMember.project_id==id).all()
+        return pm.to_dict(), 200
+    
+    def post(self):
+        req=request.get_json()
+        pm = ProjectMember(project_id=req['project_id'], user_id=req['user_id'], user_role=req['user_role'])
+        db.session.add(pm)
+        db.session.commit()
+        return pm.to_dict(), 200
+    
+api.add_resource(ProjectMembersByProjectId, '/projects/<int:id>/members')
+
 class Todo(Resource):
     def post(self):
         req = request.get_json()
@@ -156,6 +172,42 @@ class TodoByProjectId(Resource):
     def get(self, id):
         td_list = Todo.query.filter(Todo.project_id == id).all()
         return td_list.to_dict(), 200
+
+api.add_resource(TodoByProjectId, '/projects/<int:id>/todos')
+
+class TodoById(Resource):
+    def patch(self, id):
+        req = request.get_json()
+        td = Todo.query.filter(Todo.id == id).first()
+        for key, value in req:
+            td[key] = value
+        db.session.commit()
+        return td.to_dict(), 200
+    
+    def delete(self, id):
+        td = Todo.query.filter(Todo.id == id).first()
+        db.session.delete(td)
+        db.session.commit()
+        return make_response('', 204)
+
+api.add_resource(TodoById, '/todos/<int:id>')
+
+class Teams(Resource):
+    def post(self):
+        req = request.get_json()
+        t = Team(name=req['name'], company=req['company'], user_id=session['user_id'])
+        db.session.add(t)
+        db.session.flush()
+        tm = TeamMember(team_id=t.id, user_id=session['user_id'], user_role='owner')
+        db.session.add(tm)
+        db.session.commit()
+        return t.to_dict(), 200
+    
+    def get(self):
+        t = Team.query.all()
+        return t.to_dict(), 200
+
+api.add_resource(Teams, '/teams')
 
 if __name__ == '__main__':
     app.run(port=5555, debug=True)

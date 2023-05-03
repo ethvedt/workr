@@ -12,6 +12,7 @@ import Projects from './components/Projects';
 import ProjectList from './components/ProjectList';
 import Project from './components/Project';
 import Login from './components/Login';
+import NewProjectForm from './components/NewProjectForm';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 
@@ -52,6 +53,10 @@ const route = createBrowserRouter([
                         index: true,
                         element: <ProjectList />
 
+                    },
+                    {
+                        path: 'new',
+                        element: <NewProjectForm />
                     },
                     {
                         path: ':projectId',

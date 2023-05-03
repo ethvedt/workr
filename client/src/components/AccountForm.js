@@ -9,11 +9,7 @@ export default function AccountForm({ handleSubmit }) {
             .min(4, 'Username is too short.')
             .max(32, 'Username is too long.')
             .required('Username is required.')
-            .test(
-                'is-alnum',
-                `$Username must not contain any special characters.`,
-                (val, context) => {return val.isalnum()},
-            ),
+            .matches('/^[a-z0-9]+$/i', 'Must use letters and numbers only.'),
         password: yup.string()
             .min(8, 'Password is too short.')
             .max(255, 'Password is too long.')
@@ -29,18 +25,21 @@ export default function AccountForm({ handleSubmit }) {
     return (
     <Formik 
         initialValues={initialValues}
-        validate={formSchema}
+        validationSchema={formSchema}
         onSubmit={handleSubmit}
     >
-        <Form>
-            <label htmlfor='username'>Username</label>
-            <Field id='username' name='username' />
+        {(formik) =>{
+            return(
+                <Form>
+                    <label htmlFor='username'>Username</label>
+                    <Field id='username' name='username' />
 
-            <label htmlfor='password'>Password</label>
-            <Field id='password' name='password' />
+                    <label htmlFor='password'>Password</label>
+                    <Field id='password' name='password' />
 
-            <button type='submit'>Submit</button>
-        </Form>
+                    <button type='submit'>Submit</button>
+                </Form>)
+        }}
     </Formik>)
 
 };

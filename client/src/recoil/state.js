@@ -8,6 +8,11 @@ export const userAtom = atom({
     },
 });
 
+export const userProjectsAtom = atom({
+    key: 'userProjects',
+    default: []
+});
+
 export const loggedIn = selector({
     key: 'loggedIn',
     get: ({get}) => {
@@ -19,4 +24,21 @@ export const loggedIn = selector({
             return false;
         }
     }
-})
+});
+
+export const userTeamsAtom = atom({
+    key: 'userTeams',
+    default: []
+});
+
+export const teamSelectList = selector({
+    key: 'teamList',
+    get: ({get}) => {
+        const teams = get(userTeamsAtom);
+        const teamDict = [];
+        for (const team in teams) {
+            teamDict.append({id: team.id, name: team.name, company: team.company});
+        };
+        return teamDict;
+    }
+});
