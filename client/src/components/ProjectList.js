@@ -14,8 +14,8 @@ export default function ProjectList() {
         return (
             <tr key={project.title}>
                 <td>{project.title}</td>
-                <td>{nextDue.title}</td>
-                <td>{nextDue.progress}</td>
+                <td>{nextDue? nextDue.title : 'None'}</td>
+                <td>{nextDue? nextDue.progress : 'N/A'}</td>
                 <td>
                     <Link to={`${project.id}`}>View Details</Link> 
                 </td>

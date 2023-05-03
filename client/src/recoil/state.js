@@ -1,4 +1,4 @@
-import { atom, selector } from 'recoil';
+import { atom, selector, selectorFamily } from 'recoil';
 
 export const userAtom = atom({
     key: 'user',
@@ -12,6 +12,26 @@ export const userProjectsAtom = atom({
     key: 'userProjects',
     default: []
 });
+
+export const selectedProject = selectorFamily({
+    key: 'selectedProject',
+    get: (id) => ({get}) => {
+        const pList = get(userProjectsAtom);
+        for (const p in pList) {
+            if (p['id'] === id) {
+                return p;
+            }
+        }
+        return null
+    }
+})
+
+export const selectedProjectTodos = selectorFamily({
+    key: 'selectedProjectTodos',
+    get: (id) => async ({get}) => {
+        const todos = await fetch(`/projects/${id}/todos`)
+    }
+})
 
 export const loggedIn = selector({
     key: 'loggedIn',
@@ -35,10 +55,11 @@ export const teamSelectList = selector({
     key: 'teamList',
     get: ({get}) => {
         const teams = get(userTeamsAtom);
-        const teamDict = [];
+        const teamList = [];
         for (const team in teams) {
-            teamDict.append({id: team.id, name: team.name, company: team.company});
+            teamList.append({id: team.id, name: team.name, company: team.company});
         };
-        return teamDict;
+        return teamList;
     }
 });
+

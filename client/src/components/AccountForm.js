@@ -9,9 +9,9 @@ export default function AccountForm({ handleSubmit }) {
             .min(4, 'Username is too short.')
             .max(32, 'Username is too long.')
             .required('Username is required.')
-            .matches('/^[a-z0-9]+$/i', 'Must use letters and numbers only.'),
+            .matches(/^[a-z0-9]+$/i, 'Must use letters and numbers only.'),
         password: yup.string()
-            .min(8, 'Password is too short.')
+            .min(4, 'Password is too short.')
             .max(255, 'Password is too long.')
             .required('Password is required.')
     });
@@ -28,14 +28,20 @@ export default function AccountForm({ handleSubmit }) {
         validationSchema={formSchema}
         onSubmit={handleSubmit}
     >
-        {(formik) =>{
+        {({ errors, touched }) =>{
             return(
                 <Form>
                     <label htmlFor='username'>Username</label>
                     <Field id='username' name='username' />
+                    {errors.username && touched.username ? (
+                        <div>{errors.username}</div>
+                    ) : null}
 
                     <label htmlFor='password'>Password</label>
                     <Field id='password' name='password' />
+                    {errors.password && touched.password ? (
+                        <div>{errors.password}</div>
+                    ) : null}
 
                     <button type='submit'>Submit</button>
                 </Form>)

@@ -18,20 +18,20 @@ class Login(Resource):
         req = request.get_json()
         try:
             user = User.query.filter(User.username==req['username']).first()
+            session['user_id'] = user.id
+            if user.auth(req['password']) == False:
+                return make_response({'error': 'Authentication failed'}, 401)
+            return make_response(user.to_dict(only=('username', 'id')), 200)
         except:
             return make_response({'error': 'User not found.'}, 404)
-        if user.auth(req.password) == False:
-            return make_response({'error': 'Authentication failed'}, 401)
-        session['user_id'] = user.id
-        return make_response(user.to_dict(only=('username', 'id')), 200)
     
-api.add_resource(Login, '/login/')
+api.add_resource(Login, '/login')
     
 class CheckSession(Resource):
     def get(self):
-        user = User.query.filter(User.username==session.get('user_id')).first()
+        user = User.query.filter(User.id==session.get('user_id')).first()
         if user:
-            return make_response(user.to_dict(), 200)
+            return make_response(user.to_dict(only=('username', 'id')), 200)
         else:
             return make_response({'error': 'Unauthorized'}, 401)
     
@@ -48,7 +48,7 @@ class Users(Resource):
     def get(self):
         u_list = User.query.all()
 
-        return make_response(u_list.to_dict(only=('username', 'id')), 200)
+        return make_response(list(map(lambda c: c.to_dict(only=('id', 'username')), u_list)), 200)
     
     def post(self):
         req = request.get_json()
@@ -96,21 +96,22 @@ api.add_resource(UsersById, '/users/<int:id>')
 class ProjectsByUserId(Resource):
     def get(self, id):
         p_list = Project.query.filter(Project.user_id==id).all()
-        return make_response(p_list.to_dict(only=('id', 'title', 'team.name', 'todos')), 200)
+        return make_response(list(map(lambda c: c.to_dict(only=('id', 'title', 'team.name', 'team.id', 'users.username', 'todos')), p_list)), 200)
     
 api.add_resource(ProjectsByUserId, '/users/<int:id>/projects')
 
 class TeamsByUserId(Resource):
     def get(self, id):
         t_list = Team.query.filter(Team.user_id == id).all()
-        return t_list.to_dict(), 200
+        
+        return make_response(list(map(lambda c: c.to_dict(), t_list)), 200)
     
 api.add_resource(TeamsByUserId, '/users/<int:id>/teams')
 
 class ProjectsByTeamId(Resource):
     def get(self, id):
         p_list = Project.query.filter(Project.team_id==id).all()
-        return make_response(p_list.to_dict(only=('id', 'title', 'team', 'todos')), 200)
+        return make_response(list(map(lambda c: c.to_dict(only=('id', 'title', 'team', 'todos')), p_list)), 200)
 
 api.add_resource(ProjectsByTeamId, '/teams/<int:id>/projects')
 
@@ -147,7 +148,8 @@ api.add_resource(Projects, '/projects')
 class ProjectMembersByProjectId(Resource):
     def get(self, id):
         pm = ProjectMember.query.filter(ProjectMember.project_id==id).all()
-        return pm.to_dict(), 200
+        
+        return make_response(list(map(lambda c: c.to_dict(), pm)), 200)
     
     def post(self):
         req=request.get_json()
@@ -168,12 +170,14 @@ class Todo(Resource):
 
 api.add_resource(Todo, '/todos')
 
-class TodoByProjectId(Resource):
+class TodosByProjectId(Resource):
     def get(self, id):
         td_list = Todo.query.filter(Todo.project_id == id).all()
-        return td_list.to_dict(), 200
 
-api.add_resource(TodoByProjectId, '/projects/<int:id>/todos')
+        
+        return make_response(list(map(lambda c: c.to_dict(), td_list)), 200)
+
+api.add_resource(TodosByProjectId, '/projects/<int:id>/todos')
 
 class TodoById(Resource):
     def patch(self, id):
@@ -205,7 +209,8 @@ class Teams(Resource):
     
     def get(self):
         t = Team.query.all()
-        return t.to_dict(), 200
+        
+        return list(map(lambda c: c.to_dict(), t)), 200
 
 api.add_resource(Teams, '/teams')
 

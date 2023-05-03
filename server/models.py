@@ -27,6 +27,8 @@ class User(DefaultBase):
     messages = db.relationship('Message', backref='user', cascade='all, delete-orphan')
     todos = db.relationship('Todo', backref='user', cascade='all, delete-orphan')
     projects = association_proxy('project_members', 'project')
+    team_members = db.relationship('TeamMember', backref='user', cascade='all, delete')
+    teams = association_proxy('team_members', 'team')
 
     @hybrid_property
     def password(self):
@@ -75,7 +77,7 @@ class ProjectMember(DefaultBase):
     serialize_rules=('-created_at', '-updated_at', '-project', '-user')
 
     @validates('user_role')
-    def val_user_role(self, role):
+    def val_user_role(self, key, role):
         role_list = ['owner', 'senior', 'junior']
         if role not in role_list:
             raise ValueError(f'Invalid role: {role}')
@@ -103,7 +105,7 @@ class TeamMember(DefaultBase):
     serialize_rules=('-created_at', '-updated_at', '-team', '-user')
     
     @validates('user_role')
-    def val_user_role(self, role):
+    def val_user_role(self, key, role):
         role_list = ['owner', 'manager', 'senior', 'junior']
         if role not in role_list:
             raise ValueError(f'Invalid role: {role}')
@@ -120,10 +122,10 @@ class Todo(DefaultBase):
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
     project_id = db.Column(db.Integer, db.ForeignKey('projects.id'))
 
-    serialize_rules=('-created_at', '-updated_at', '-project', '-user')
+    serialize_rules=('-created_at', '-updated_at', '-project', '-user', 'user.username', 'user.id', 'project.id', 'project.name')
 
     @validates('status')
-    def validate_status(self, status):
+    def validate_status(self, key, status):
         stat_list = ['not started', 'in progress', 'testing', 'complete']
         if status not in stat_list:
             raise ValueError(f'Invalid status: {status}')

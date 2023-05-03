@@ -1,11 +1,11 @@
 import React from 'react';
 import { Link } from 'react-router-dom'
-import { useRecoilValue, useSetRecoilState } from 'recoil';
+import { useRecoilValue, useRecoilState } from 'recoil';
 import { loggedIn, userAtom } from '../recoil/state.js';
 
 export default function NavBar() {
     const login = useRecoilValue(loggedIn);
-    const setUser = useSetRecoilState(userAtom);
+    const [user, setUser] = useRecoilState(userAtom);
 
     function handleLogout(e) {
         fetch('/logout', {
@@ -16,11 +16,11 @@ export default function NavBar() {
         }))
     }
 
-    const loginOrOut = login ? <h3>Log in</h3> :  <button onclick={handleLogout}>Log out</button>
+    // const loginOrOut = login ? <h3>Log in</h3> :  <button onClick={handleLogout}>Log out</button>
 
     return (
         <div className='navbar'>
-            <Link to='login'><p>Log in</p></Link>
+            <Link to='login'>{login ? (<button onClick={handleLogout}>Log out</button>) : (<h3>Log in</h3>)}</Link>
             <Link to='home'><p>Home</p></Link>
             <Link to='calendar'><p>Calendar</p></Link>
             <Link to='teams'><p>Teams</p></Link>

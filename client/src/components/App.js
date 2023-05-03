@@ -31,7 +31,7 @@ export default function App() {
         redirect('login');
       }
     })
-  }, [user])
+  }, [])
 
 
   return (
