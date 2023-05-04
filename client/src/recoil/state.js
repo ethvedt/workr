@@ -8,10 +8,20 @@ export const userAtom = atom({
     },
 });
 
+export const userTeamsAtom = atom({
+    key: 'userTeams',
+    default: []
+});
+
 export const userProjectsAtom = atom({
     key: 'userProjects',
     default: []
 });
+
+export const userTodosAtom = atom({
+    key: 'userTodos',
+    default: []
+})
 
 export const selectedProject = selectorFamily({
     key: 'selectedProject',
@@ -44,10 +54,7 @@ export const loggedIn = selector({
     }
 });
 
-export const userTeamsAtom = atom({
-    key: 'userTeams',
-    default: []
-});
+
 
 export const teamSelectList = selector({
     key: 'teamList',
@@ -55,8 +62,20 @@ export const teamSelectList = selector({
         const teams = get(userTeamsAtom);
         const teamList = [];
         for (const team in teams) {
-            teamList.append({id: team.id, name: team.name, company: team.company});
+            teamList.push({id: team.id, name: team.name, company: team.company});
         };
         return teamList;
+    }
+});
+
+export const teamOpts = selector({
+    key: 'teamOpts',
+    get: ({get}) => {
+        const teams = get(teamSelectList);
+        const optList = [];
+        for (const team in teams) {
+            optList.push({value: team, label: team.name})
+        };
+        return optList;
     }
 });

@@ -9,7 +9,7 @@ export default function ProjectList() {
 
     const projects = pList.map((project) => {
 
-        const nextDue = project.todos.sort((a, b) => {return Date.parse(b.created_at) - Date.parse(a.created_at)})[0];
+        const nextDue = project.todos.sort((a, b) => {return Date.parse(b.due_date) - Date.parse(a.due_date)})[0];
 
         return (
             <tr key={project.title}>

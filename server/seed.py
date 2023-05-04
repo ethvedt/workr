@@ -71,11 +71,13 @@ if __name__ == '__main__':
         pList = Project.query.all()
 
         for team in tList:
-            tm = TeamMember(user=et, team=team, user_role='manager')
-            db.session.add(tm)
+            if not TeamMember.query.filter(TeamMember.team_id == team.id).filter(TeamMember.user_id == et.id).first():
+                tm = TeamMember(user=et, team=team, user_role='manager')
+                db.session.add(tm)
         db.session.commit()
 
         for project in pList:
-            pm = ProjectMember(user=et, project=project, user_role='senior')
-            db.session.add(pm)
+            if not ProjectMember.query.filter(ProjectMember.project_id == project.id).filter(ProjectMember.user_id == et.id).first():
+                pm = ProjectMember(user=et, project=project, user_role='senior')
+                db.session.add(pm)
         db.session.commit()

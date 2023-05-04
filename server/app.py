@@ -95,16 +95,16 @@ api.add_resource(UsersById, '/users/<int:id>')
             
 class ProjectsByUserId(Resource):
     def get(self, id):
-        p_list = Project.query.filter(Project.user_id==id).all()
+        p_list = Project.query.filter(Project.users.any(id ==id)).all()
         return make_response(list(map(lambda c: c.to_dict(only=('id', 'title', 'team.name', 'team.id', 'users.username', 'todos')), p_list)), 200)
     
 api.add_resource(ProjectsByUserId, '/users/<int:id>/projects')
 
 class TeamsByUserId(Resource):
     def get(self, id):
-        t_list = Team.query.filter(Team.user_id == id).all()
+        t_list = Team.query.filter(Team.users.any(id == id)).all()
         
-        return make_response(list(map(lambda c: c.to_dict(), t_list)), 200)
+        return make_response(list(map(lambda c: c.to_dict(only=('id', 'name', 'company', 'users.username', 'users.id')), t_list)), 200)
     
 api.add_resource(TeamsByUserId, '/users/<int:id>/teams')
 

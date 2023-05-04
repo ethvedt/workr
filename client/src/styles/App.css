@@ -1,0 +1,27 @@
+span {
+    display: flex;
+    flex-direction: row;
+    padding-right: 20px;
+}
+
+span > p {
+    padding-right: 20px;
+}
+
+.team-list {
+    width: 80%;
+    border: 1px solid black;
+    justify-content: space-evenly;
+    margin: 40px;
+}
+
+.teams-container {
+    overflow-y: scroll;
+    height: 80vh;
+}
+
+.topbar {
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+}

@@ -1,11 +1,14 @@
 import React, { useEffect } from "react";
 import { Outlet, redirect } from "react-router-dom";
-import { useRecoilState } from 'recoil';
-import { userAtom } from "../recoil/state.js";
+import { useRecoilState, useSetRecoilState } from 'recoil';
+import { userAtom, userTeamsAtom, userProjectsAtom } from '../recoil/state';
 import NavBar from './NavBar.js';
+import '../styles/App.css'
 
 export default function App() {
   const [user, setUser] = useRecoilState(userAtom);
+  const setTeams = useSetRecoilState(userTeamsAtom);
+  const setProjects = useSetRecoilState(userProjectsAtom);
 
 
   useEffect(() => {
@@ -32,6 +35,16 @@ export default function App() {
       }
     })
   }, [])
+
+  useEffect(() => {
+    fetch(`/users/${user.id}/projects`)
+    .then(res => res.json())
+    .then(p => setProjects(p));
+
+    fetch(`/users/${user.id}/teams`)
+    .then(res => res.json())
+    .then(t => setTeams(t));
+  }, [user]);
 
 
   return (
