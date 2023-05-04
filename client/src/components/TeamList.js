@@ -17,14 +17,16 @@ export default function TeamList() {
         
         const projects = pList.map((project) => {
 
-            const nextDue = project.todos.sort((a, b) => {return Date.parse(b.due_date) - Date.parse(a.due_date)})[0];
+            const todoList = Array(...project.todos);
+            const nextDue = todoList.sort((a, b) => {return Date.parse(b.due_date) - Date.parse(a.due_date)})[0];
             
             if (project.team.id === team.id) {
                 return (
                 <tr key={project.title}>
                     <td>{project.title}</td>
                     <td>{nextDue? nextDue.title : 'None'}</td>
-                    <td>{nextDue? nextDue.progress : 'N/A'}</td>
+                    <td>{nextDue? nextDue.status : 'N/A'}</td>
+                    <td>{nextDue? nextDue.due_date : 'N/A'}</td>
                 </tr>
                 )
             } else {return null}
@@ -42,7 +44,8 @@ export default function TeamList() {
                         <tr>
                             <th>Projects</th>
                             <th>Next Due</th>
-                            <th>Progress</th>
+                            <th>Status</th>
+                            <th>Due Date</th>
                         </tr>
                     </thead>
                     <tbody>

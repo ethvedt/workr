@@ -8,7 +8,9 @@ export default function Home() {
     const [teams, setTeams] = useRecoilState(userTeamsAtom);
     const [projects, setProjects] = useRecoilState(userProjectsAtom);
 
-    useEffect(() => {}, [user])
+    useEffect(() => {
+        
+    }, [user])
 
     return (
         <div className="home">
