@@ -11,7 +11,6 @@ export default function Login() {
     const [loginOrCreate, setLoginOrCreate] = useState(true);
 
     function handleLogin(vals) {
-        console.log(vals);
         fetch('/login', {
             method: 'POST',
             headers: {

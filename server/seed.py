@@ -72,6 +72,10 @@ if __name__ == '__main__':
 
         for team in tList:
             tm = TeamMember(user=et, team=team, user_role='manager')
+            db.session.add(tm)
+        db.session.commit()
 
         for project in pList:
             pm = ProjectMember(user=et, project=project, user_role='senior')
+            db.session.add(pm)
+        db.session.commit()

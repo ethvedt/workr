@@ -12,7 +12,7 @@ export default function Projects() {
         fetch(`/users/${user.id}/projects`)
         .then(res => res.json())
         .then(data => {
-            
+
             if (data !== pList) {
                 setPList(data)
             }

@@ -2,6 +2,7 @@ from sqlalchemy_serializer import SerializerMixin
 from sqlalchemy.ext.associationproxy import association_proxy
 from sqlalchemy.orm import validates
 from sqlalchemy.ext.hybrid import hybrid_property
+import datetime
 
 from config import db, bcrypt
 
@@ -115,9 +116,15 @@ class TeamMember(DefaultBase):
 class Todo(DefaultBase):
     __tablename__ = 'todos'
 
+    def default_due_date():
+        date = datetime.date.today() + datetime.timedelta(days=5)
+        return date
+
     title = db.Column(db.String)
     body = db.Column(db.String)
     status = db.Column(db.String, server_default='not started')
+    due_date = db.Column(db.Date, default=default_due_date)
+
     
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
     project_id = db.Column(db.Integer, db.ForeignKey('projects.id'))

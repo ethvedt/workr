@@ -1,8 +1,10 @@
-import React from 'react';
-import { Formik, Field, Form } from 'formik';
+import React, { useState } from 'react';
+import { Formik, Field, Form, ErrorMessage } from 'formik';
 import * as yup from 'yup';
 
 export default function AccountForm({ handleSubmit }) {
+
+    const [hidePassword, setHidePassword] = useState(true)
 
     const formSchema = yup.object().shape({
         username: yup.string()
@@ -21,6 +23,10 @@ export default function AccountForm({ handleSubmit }) {
         password: '',
     };
 
+    function handleToggleHidePassword(e) {
+        const currentState = hidePassword;
+        setHidePassword(!currentState);
+    }
 
     return (
     <Formik 
@@ -33,17 +39,14 @@ export default function AccountForm({ handleSubmit }) {
                 <Form>
                     <label htmlFor='username'>Username</label>
                     <Field id='username' name='username' />
-                    {errors.username && touched.username ? (
-                        <div>{errors.username}</div>
-                    ) : null}
+                    <ErrorMessage name='username' />
 
                     <label htmlFor='password'>Password</label>
-                    <Field id='password' name='password' />
-                    {errors.password && touched.password ? (
-                        <div>{errors.password}</div>
-                    ) : null}
+                    <Field id='password' name='password' type={hidePassword ? 'password' : 'text'}/>
+                    <button type='button' onClick={handleToggleHidePassword}>{hidePassword ? 'Show Password' : 'Hide Password'}</button>
+                    <ErrorMessage name='password' />
 
-                    <button type='submit'>Submit</button>
+                    <button>Submit</button>
                 </Form>)
         }}
     </Formik>)

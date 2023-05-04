@@ -26,11 +26,9 @@ export const selectedProject = selectorFamily({
     }
 })
 
-export const selectedProjectTodos = selectorFamily({
+export const selectedProjectTodos = atom({
     key: 'selectedProjectTodos',
-    get: (id) => async ({get}) => {
-        const todos = await fetch(`/projects/${id}/todos`)
-    }
+    default: []
 })
 
 export const loggedIn = selector({
@@ -62,4 +60,3 @@ export const teamSelectList = selector({
         return teamList;
     }
 });
-
