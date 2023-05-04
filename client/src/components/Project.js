@@ -8,13 +8,14 @@ export default function Project() {
 
     let { projectId } = useParams();
     const projects = useRecoilValue(userProjectsAtom);
-    const currentProject = useRecoilValue(selectedProject(projectId));
+
+    const currentProject = projects.filter(project => project.id == projectId)[0];
 
     return (
         <div className='project-card'>
-            <h3>{currentProject?.title}</h3>
-            <div className='kanban-board container'>
-                <KanbanBoard />
+            <h3>{currentProject.title}</h3>
+            <div className='kanban container'>
+                <KanbanBoard project={currentProject}/>
             </div>
             <div className='next-five-days'>
                 <span className='week-calendar'>

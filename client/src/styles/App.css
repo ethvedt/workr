@@ -1,3 +1,19 @@
+body {
+    background-color: rgb(81, 50, 255);
+    color: rgb(214, 214, 214);
+    border-radius: 10px;
+}
+
+.navbar p {
+    color:rgb(214, 214, 214)
+}
+
+.navbar a {
+    background-color: rgb(106, 106, 106);
+    width:fit-content;
+    padding: 5px 25px;
+}
+
 span {
     display: flex;
     flex-direction: row;
@@ -13,16 +29,76 @@ span > p {
     border: 1px solid black;
     justify-content: space-evenly;
     margin: 40px;
+    color: black;
 }
 
 .teams-container {
     overflow-y: scroll;
     height: 80vh;
 }
+.team-list{
+    background-color: whitesmoke;
+}
 
+.team-list > * {
+    border-bottom: 1px solid black;
+    border-collapse: collapse;
+}
 .navbar {
     display: flex;
     flex-direction: row;
     width: 100%;
     justify-content: space-evenly;
+}
+
+.kanban-board {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 40%;
+    min-height: 600px;
+    border: 1px solid red;
+    background-color: whitesmoke;
+    color: black;
+}
+
+.kanban-board .column-container {
+    display: flex;
+    flex-direction: row;
+    border: 1px solid blue;
+    margin: 10px;
+    min-height: 600px;
+}
+.kanban-board > p {
+    text-align: center;
+}
+
+.droppable {
+    margin: 8px
+}
+
+.column {
+    border: 1px solid black;
+    align-items: center;
+    height: 500px;
+    margin: 10px;
+    min-width: 100px;
+}
+
+.column div {
+    border: 1px solid purple;
+    min-height: 30px;
+}
+
+.project-list {
+    background-color: whitesmoke;
+    color: black;
+}
+
+.team-list h3 {
+    text-transform: capitalize;
+}
+
+.projects-container > a {
+    background-color: antiquewhite;
 }

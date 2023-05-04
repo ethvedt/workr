@@ -73,9 +73,7 @@ const route = createBrowserRouter([
 ])
 
 root.render(
-    <React.StrictMode>
         <RecoilRoot>
             <RouterProvider router={route} />
         </RecoilRoot>
-    </React.StrictMode>
 )

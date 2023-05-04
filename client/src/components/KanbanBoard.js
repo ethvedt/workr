@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
-import { useRecoilValue } from 'recoil';
-import { selectedProjectTodos } from '../recoil/state';
+import { useRecoilValue, useRecoilState } from 'recoil';
+import { userProjectsAtom, userTodosAtom } from '../recoil/state';
 
 const todoStatus = {
     notStarted: {
@@ -60,68 +60,106 @@ function handleDragEnd(result, columns, setColumns) {
     }
 };
 
-export default function KanbanBoard() {
+export default function KanbanBoard({ project }) {
 
-    const { currentId } = useParams();
-    const todos = useRecoilValue(selectedProjectTodos(currentId));
+    const projects = useRecoilValue(userProjectsAtom);
+    const [userTodos, setUserTodos] = useRecoilState(userTodosAtom);
     const [columns, setColumns] = useState(todoStatus);
 
+    const todoProject = project.todos;
+    console.log(todoProject)
 
     useEffect(() => {
-        for (const td of todos) {
-            for (const prop in todoStatus) {
-                if (todoStatus[prop]['name'].toLowerCase() === td.status) {
-                    todoStatus[prop]['items'].push(td);
+        for (const td of todoProject) {
+            for (const prop in columns) {
+                const column = columns[prop];
+                if(!(td in column.items)) {
+                    setColumns({
+                        ...columns,
+                        [prop]: {
+                            ...column,
+                            items: [...column.items, td]
+                        }
+        
+                    })
+                }
+            }
+            
+        }
+
+    }, [projects]);
+
+    function handleSave(e) {
+        for (const prop in columns) {
+            for (const td in prop.items) {
+                console.log(td);
+                fetch('/todos/'+td.id, {
+                    method: 'PATCH',
+                    headers: 'application/json',
+                    body: JSON.stringify(td)
+                })
+                .then(res=> res.json())
+                .then(data => {
+                    const todoList = [...userTodos] 
+                    const todoToReplace = todoList.filter(todo => todo.id == data.id);
+                    todoList.splice(todoList.indexOf(todoToReplace), 1, data);
+                    setUserTodos(todoList);
+                        })
+                    
                 }
             }
         }
+    
 
-    }, [todos]);
+    console.log(columns)
 
     return (
     <div className='kanban-board'>
         <h3>Kanban Board</h3>
         <DragDropContext onDragEnd={(result) => handleDragEnd(result, columns, setColumns)}>
-            {Object.entries(columns).map(([columnId, column], index) => {
-                return (
-                    <div key={columnId}>
-                        <p>{column.name}</p>
-                        <Droppable droppableId={columnId} key={columnId}>
-                            {(provided, snapshot) => {
-                                return (
-                                    <div
-                                    {...provided.droppableProps}
-                                    ref={provided.innerRef}
-                                    >
-                                        {column.items.map((item, index) => {
-                                            return (
-                                                <Draggable
-                                                key={item.id}
-                                                draggableId={item.id}
-                                                index={index}
-                                                >
-                                                    {(provided, snapshot) => {
-                                                        return (
-                                                            <div
-                                                            ref={provided.innerRef}
-                                                            {...provided.draggableProps}
-                                                            {...provided.dragHandleProps}
-                                                            >
-                                                                {item?.title}
-                                                            </div>
-                                                        )
-                                                    }}
-                                                </Draggable>
-                                            )
-                                        })}
-                                    </div>
-                                )
-                            }}
-                        </Droppable>
-                    </div>
-                )
-            })}
+            <div className='column-container'>
+                {Object.entries(columns).map(([columnId, column], index) => {
+                    return (
+                        <div className='column' key={columnId}>
+                            <p>{column.name}</p>
+                            <Droppable droppableId={columnId} key={columnId} >
+                                {(provided, snapshot) => {
+                                    return (
+                                        <div
+                                        {...provided.droppableProps}
+                                        ref={provided.innerRef}
+                                        >
+                                            {column.items.map((item, index) => {
+                                                return (
+                                                    <Draggable
+                                                    key={item.id}
+                                                    draggableId={String(item.id)}
+                                                    index={index}
+                                                    >
+                                                        {(provided, snapshot) => {
+                                                            return (
+                                                                <div
+                                                                ref={provided.innerRef}
+                                                                {...provided.draggableProps}
+                                                                {...provided.dragHandleProps}
+                                                                >
+                                                                    {item?.title}
+                                                                </div>
+                                                            )
+                                                        }}
+                                                    </Draggable>
+                                                )
+                                            })}
+                                        </div>
+                                    )
+                                }}
+                            </Droppable>
+                        </div>
+                    )
+                })}
+            </div>
         </DragDropContext>
+        <button type='button' onClick={handleSave}>Save Changes</button>
     </div>
     )
 };
