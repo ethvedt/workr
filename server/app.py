@@ -95,8 +95,8 @@ api.add_resource(UsersById, '/users/<int:id>')
             
 class ProjectsByUserId(Resource):
     def get(self, id):
-        p_list = Project.query.filter(Project.users.any(id ==id)).all()
-        return make_response(list(map(lambda c: c.to_dict(only=('id', 'title', 'team.name', 'team.id', 'users.username', 'todos')), p_list)), 200)
+        p_list = Project.query.filter(Project.users.any(User.id == id)).all()
+        return make_response(list(map(lambda c: c.to_dict(only=('id', 'title', 'team.id', 'users.username', 'todos.id', 'todos.title', 'todos.status', 'todos.due_date')), p_list)), 200)
     
 api.add_resource(ProjectsByUserId, '/users/<int:id>/projects')
 

@@ -20,8 +20,9 @@ span > p {
     height: 80vh;
 }
 
-.topbar {
+.navbar {
     display: flex;
     flex-direction: row;
     width: 100%;
+    justify-content: space-evenly;
 }

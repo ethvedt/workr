@@ -121,7 +121,6 @@ class Todo(DefaultBase):
         return date
 
     title = db.Column(db.String)
-    body = db.Column(db.String)
     status = db.Column(db.String, server_default='not started')
     due_date = db.Column(db.Date, default=default_due_date)
 
@@ -129,7 +128,7 @@ class Todo(DefaultBase):
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
     project_id = db.Column(db.Integer, db.ForeignKey('projects.id'))
 
-    serialize_rules=('-created_at', '-updated_at', '-project', '-user', 'user.username', 'user.id', 'project.id', 'project.name')
+    serialize_rules=('-created_at', '-updated_at', '-project', '-user')
 
     @validates('status')
     def validate_status(self, key, status):

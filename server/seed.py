@@ -2,6 +2,7 @@
 
 # Standard library imports
 from random import randint, choice as rc
+import datetime
 
 # Remote library imports
 from faker import Faker
@@ -80,4 +81,11 @@ if __name__ == '__main__':
             if not ProjectMember.query.filter(ProjectMember.project_id == project.id).filter(ProjectMember.user_id == et.id).first():
                 pm = ProjectMember(user=et, project=project, user_role='senior')
                 db.session.add(pm)
+        db.session.commit()
+
+        for i in range(50):
+            stat_list = ['not started', 'in progress', 'testing', 'complete']
+
+            td = Todo(title=fake.word(), user=et, project=rc(pList), status=rc(stat_list), due_date=fake.date_this_month(before_today=False, after_today=True))
+            db.session.add(td)
         db.session.commit()

@@ -19,12 +19,12 @@ export default function NavBar() {
     // const loginOrOut = login ? <h3>Log in</h3> :  <button onClick={handleLogout}>Log out</button>
 
     return (
-        <div className='navbar'>
-            <Link to='login'>{login ? (<button onClick={handleLogout}>Log out</button>) : (<h3>Log in</h3>)}</Link>
+        <span className='navbar'>
+            {login ? (<button onClick={handleLogout}>Log out</button>) : (<Link to='login'>Log in</Link>)}
             <Link to='home'><p>Home</p></Link>
             <Link to='calendar'><p>Calendar</p></Link>
             <Link to='teams'><p>Teams</p></Link>
             <Link to='projects'><p>Projects</p></Link>
-        </div>
+        </span>
     )
 }
