@@ -6,6 +6,7 @@ import { userProjectsAtom } from '../recoil/state'
 export default function ProjectList() {
 
     const pList = useRecoilValue(userProjectsAtom)
+    console.log(pList)
 
     const projects = pList.map((project) => {
 

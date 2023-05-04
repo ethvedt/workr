@@ -21,25 +21,35 @@ export const userProjectsAtom = atom({
 export const userTodosAtom = atom({
     key: 'userTodos',
     default: []
-})
+});
 
 export const selectedProject = selectorFamily({
     key: 'selectedProject',
     get: (id) => ({get}) => {
         const pList = get(userProjectsAtom);
         for (const p in pList) {
-            if (p['id'] === id) {
+            if (p.id === id) {
+                console.log(p)
                 return p;
             }
         }
-        return null
     }
-})
+});
 
-export const selectedProjectTodos = atom({
+export const selectedProjectTodos = selectorFamily({
     key: 'selectedProjectTodos',
-    default: []
-})
+    get: (id) => ({get}) => {
+        const currentProject = get(selectedProject(id));
+        const todos = get(userTodosAtom);
+        const projectTodos = [];
+        for (const t in todos) {
+            if (t.project_id === currentProject.id) {
+                projectTodos.push(t);
+            }
+        };
+        return projectTodos;
+    }
+});
 
 export const loggedIn = selector({
     key: 'loggedIn',
