@@ -1,7 +1,7 @@
 import React, { useEffect } from "react";
 import { Outlet, redirect } from "react-router-dom";
 import { useRecoilState, useSetRecoilState } from 'recoil';
-import { userAtom, userTeamsAtom, userProjectsAtom } from '../recoil/state';
+import { userAtom, userTeamsAtom, userProjectsAtom, userTodosAtom } from '../recoil/state';
 import NavBar from './NavBar.js';
 import '../styles/App.css'
 
@@ -9,6 +9,7 @@ export default function App() {
   const [user, setUser] = useRecoilState(userAtom);
   const setTeams = useSetRecoilState(userTeamsAtom);
   const setProjects = useSetRecoilState(userProjectsAtom);
+  const setTodos = useSetRecoilState(userTodosAtom);
 
 
   useEffect(() => {
@@ -44,6 +45,11 @@ export default function App() {
     fetch(`/users/${user.id}/teams`)
     .then(res => res.json())
     .then(t => setTeams(t));
+    
+    fetch(`/users/${user.id}/todos`)
+    .then(res => res.json())
+    .then(td => setTodos(td));
+    
   }, [user]);
 
 

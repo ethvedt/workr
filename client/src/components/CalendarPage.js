@@ -8,24 +8,30 @@ export default function CalendarPage() {
 
     const todos = useRecoilValue(userTodosAtom);
 
-    const todoCal = todos.map((todo) => {
-        if (todo.due_date.getMonth() === new Date().getMonth()) {
-            return todo;
-        }
-    })
+    function isSameDay(d1, d2) {
+        return d1.getMonth() == d2.getMonth() && d1.getDate() == d2.getDate();
+    };
 
-    function TileContent({date, view}) {
-        todoCal.map((todo) => {
-            if (todo.due_date.getDate() === date.getDate()) {
+    const TileContent = ({activeStartDate, date, view}) => {
+        const content = todos.map((todo) => {
+            const tdDate = new Date(todo.due_date);
+            if (isSameDay(tdDate, date)) {
                 return (
-                    <div key={todo.id}>
+                    <div key={todo.id} style={{
+                        border: '1px solid black',
+                        background: 'antiquewhite',
+                        margin: '1px'
+                        }}>
                         <p>{todo.title}</p>
                         <p>{todo.status}</p>
                     </div>
                 )
+            } else {
+                return <></>
             }
         })
-    }
+        return content;
+    };
 
 
     return (

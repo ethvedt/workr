@@ -160,7 +160,7 @@ class ProjectMembersByProjectId(Resource):
     
 api.add_resource(ProjectMembersByProjectId, '/projects/<int:id>/members')
 
-class Todo(Resource):
+class Todos(Resource):
     def post(self):
         req = request.get_json()
         td = Todo(title=req['title'], body=req['body'], user_id=session['user_id'], project_id=req['project_id'])
@@ -168,7 +168,7 @@ class Todo(Resource):
         db.session.commit()
         return td.to_dict(), 200
 
-api.add_resource(Todo, '/todos')
+api.add_resource(Todos, '/todos')
 
 class TodosByProjectId(Resource):
     def get(self, id):
@@ -178,6 +178,13 @@ class TodosByProjectId(Resource):
         return make_response(list(map(lambda c: c.to_dict(), td_list)), 200)
 
 api.add_resource(TodosByProjectId, '/projects/<int:id>/todos')
+
+class TodosByUserId(Resource):
+    def get(self, id):
+        td_list = Todo.query.filter(Todo.user_id == id).all()
+        return make_response(list(map(lambda c: c.to_dict(), td_list)), 200)
+
+api.add_resource(TodosByUserId, '/users/<int:id>/todos')
 
 class TodoById(Resource):
     def patch(self, id):

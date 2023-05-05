@@ -67,18 +67,19 @@ export default function KanbanBoard({ project }) {
     const [columns, setColumns] = useState(todoStatus);
 
     const todoProject = project.todos;
-    console.log(todoProject)
 
     useEffect(() => {
         for (const td of todoProject) {
             for (const prop in columns) {
                 const column = columns[prop];
-                if(!(td in column.items)) {
+                const todos = column.items
+                console.log(td, todos, column);
+                if(!(td in todos) && (td.status == column.name.toLowerCase())) {
                     setColumns({
                         ...columns,
                         [prop]: {
                             ...column,
-                            items: [...column.items, td]
+                            items: [...todos, td]
                         }
         
                     })
@@ -128,6 +129,14 @@ export default function KanbanBoard({ project }) {
                                         <div
                                         {...provided.droppableProps}
                                         ref={provided.innerRef}
+                                        style={{
+                                            background: snapshot.isDraggingOver
+                                              ? "lightblue"
+                                              : "lightgrey",
+                                            padding: 4,
+                                            width: 250,
+                                            minHeight: 500
+                                          }}
                                         >
                                             {column.items.map((item, index) => {
                                                 return (
