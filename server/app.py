@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 # Standard library imports
+from datetime import datetime
 
 # Remote library imports
 from flask import request, make_response, session
@@ -190,8 +191,10 @@ class TodoById(Resource):
     def patch(self, id):
         req = request.get_json()
         td = Todo.query.filter(Todo.id == id).first()
-        for key, value in req:
-            td[key] = value
+        for key, value in req.items():
+            if key == 'due_date':
+                value = datetime.strptime(value, '%Y-%m-%d')
+            setattr(td, key, value)
         db.session.commit()
         return td.to_dict(), 200
     

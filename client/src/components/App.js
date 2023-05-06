@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import { Outlet, redirect } from "react-router-dom";
+import { Outlet, useNavigate } from "react-router-dom";
 import { useRecoilState, useSetRecoilState } from 'recoil';
 import { userAtom, userTeamsAtom, userProjectsAtom, userTodosAtom } from '../recoil/state';
 import NavBar from './NavBar.js';
@@ -10,9 +10,13 @@ export default function App() {
   const setTeams = useSetRecoilState(userTeamsAtom);
   const setProjects = useSetRecoilState(userProjectsAtom);
   const setTodos = useSetRecoilState(userTodosAtom);
+  const navigate = useNavigate();
 
 
   useEffect(() => {
+    if (user.id == null) {
+      navigate('/')
+    }
     fetch('/check_session')
     .then(r => {
       if (r.ok) {
@@ -24,15 +28,15 @@ export default function App() {
            })
           };
           if (user.id === null) {
-            redirect('login');
+            navigate('login');
           }
           else {
-            redirect('home');
+            navigate('home');
           }
         })
       }
       else {
-        redirect('login');
+        navigate('login');
       }
     })
   }, [])

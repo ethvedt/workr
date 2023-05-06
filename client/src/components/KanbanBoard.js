@@ -48,8 +48,6 @@ export default function KanbanBoard({ project }) {
 
     const [userTodos, setUserTodos] = useRecoilState(userTodosAtom);
     const [columns, setColumns] = useState({});
-
-    const todoProject = project.todos;
     
     useEffect(() => {
         const todoStatus = {
@@ -71,11 +69,11 @@ export default function KanbanBoard({ project }) {
             },
         };
 
-        for (const td of todoProject) {
+        for (const td of userTodos) {
             for (const prop in todoStatus) {
                 const column = todoStatus[prop];
                 const todos = [...column.items];
-                if(!(td in todos) && (td.status == column.name.toLowerCase())) {
+                if(td.project_id == project.id && !(td in todos) && (td.status == column.name.toLowerCase())) {
                     todoStatus[prop].items.push(td);
                 }
             }
@@ -87,25 +85,25 @@ export default function KanbanBoard({ project }) {
     }, [userTodos]);
 
     function handleSave(e) {
+        let todoList = structuredClone(userTodos);
         for (const prop in columns) {
-            for (const td in prop.items) {
-                console.log(td);
-                fetch(`/todos/${td.id}`, {
-                    method: 'PATCH',
-                    headers: 'application/json',
-                    body: JSON.stringify(td)
-                })
-                .then(res=> res.json())
-                .then(data => {
-                    const todoList = [...userTodos] 
-                    const todoToReplace = todoList.filter(todo => todo.id == data.id);
-                    todoList.splice(todoList.indexOf(todoToReplace), 1, data);
-                    setUserTodos(todoList);
-                        })
-                    
+            for (const td of columns[prop].items) {
+                if (td) {
+                    fetch(`/todos/${td.id}`, {
+                        method: 'PATCH',
+                        headers: {'Content-Type' : 'application/json'},
+                        body: JSON.stringify(td)
+                    })
+                    .then(res=> res.json())
+                    .then(data => {
+                        const [todoToReplace] = todoList.filter(todo => todo.id == data.id);
+                        todoList = JSON.parse(JSON.stringify(todoList.slice(todoList.indexOf(todoToReplace), 1, data)));
+                    })
                 }
             }
         }
+        setUserTodos(todoList);
+    }
 
     return (
     <div className='kanban-board'>
@@ -154,6 +152,7 @@ export default function KanbanBoard({ project }) {
                                                     </Draggable>
                                                 )
                                             })}
+                                            {provided.placeholder}
                                         </div>
                                     )
                                 }}
