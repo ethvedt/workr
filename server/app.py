@@ -164,7 +164,8 @@ api.add_resource(ProjectMembersByProjectId, '/projects/<int:id>/members')
 class Todos(Resource):
     def post(self):
         req = request.get_json()
-        td = Todo(title=req['title'], body=req['body'], user_id=session['user_id'], project_id=req['project_id'])
+        date = datetime.strptime(req['due_date'].split('T')[0], '%Y-%m-%d')
+        td = Todo(title=req['title'], due_date=date, user_id=session['user_id'], project_id=req['project_id'])
         db.session.add(td)
         db.session.commit()
         return td.to_dict(), 200

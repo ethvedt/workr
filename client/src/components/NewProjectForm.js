@@ -4,60 +4,32 @@ import { Formik, Field, Form, ErrorMessage } from 'formik';
 import * as yup from 'yup';
 import { useRecoilState, useRecoilValue } from 'recoil';
 import { userProjectsAtom, teamSelectList, userAtom, userTeamsAtom, teamOpts } from '../recoil/state';
-import Select from 'react-select';
-
-
-function FormikSelect({ options, field, form }) {
-
-    function handleChange(value) {
-        console.log(value)
-        form.handleChange(value)
-    }
-
-    function getValue() {
-        if (options) {
-            return options.find(o => o.value === field.value)
-        } 
-        else {
-            return '';
-        }
-    };
-
-    return (
-        <Select 
-        name={field.name}
-        value={getValue}
-        options={options}
-        onChange={handleChange}
-        />
-        )
-    
-}
 
 export default function NewProjectForm() {
     
     const [projects, setProjects] = useRecoilState(userProjectsAtom);
-    const teams = useRecoilValue(teamSelectList);
     const user = useRecoilValue(userAtom);
-    const [userTeams, setUserTeam] = useRecoilState(userTeamsAtom);
-    const teamOptsList = useRecoilState(teamOpts);
-    
-    useEffect(() => {
-        fetch(`/users/${user.id}/teams`)
-        .then(res => res.json())
-        .then(t => {
-            console.log(t)
-            setUserTeam(t)
-        })
-    }, [])
+    const teamList = useRecoilValue(userTeamsAtom);
 
     const formSchema = yup.object().shape({
-        title: yup.string().required(),
+        title: yup.string().required('You need a title for your project.'),
         team: yup.object({
             id: yup.number().required(),
             name: yup.string().required(),
             company: yup.string().required()
         })
+    })
+
+    const teamOptsComponent = teamList?.map(team => {
+        // const teamVal = {
+        //     value: {
+        //         id: team.id,
+        //         name: team.name,
+        //         company: team.company
+        //     },
+        //     label: team.name}
+
+        return (<option key={team.id} value={team.id}>{team.name}</option>)
     })
 
     const initialValues = {
@@ -85,15 +57,12 @@ export default function NewProjectForm() {
                     <Form>
                         <label htmlFor='title'>Project Title</label>
                         <Field id='title' name='title' />
-                        <ErrorMessage name='username' />
+                        <ErrorMessage name='title' />
 
                         <label htmlFor='team'>Pick a Team</label>
-                        <Field 
-                            id='team' 
-                            name='team' 
-                            component={FormikSelect} 
-                            options={teamOptsList}
-                        />
+                        <Field id='team' name='team' as='select'>
+                            {teamOptsComponent}
+                        </Field>
                     </Form>
 
                 )}

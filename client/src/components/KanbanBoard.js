@@ -47,6 +47,7 @@ function handleDragEnd(result, columns, setColumns) {
 export default function KanbanBoard({ project }) {
 
     const [userTodos, setUserTodos] = useRecoilState(userTodosAtom);
+    const [userTasks, setUserTasks] = useState(userTodos);
     const [columns, setColumns] = useState({});
     
     useEffect(() => {
@@ -68,8 +69,8 @@ export default function KanbanBoard({ project }) {
                 items: []
             },
         };
-
-        for (const td of userTodos) {
+        console.log(userTasks)
+        for (const td of userTasks) {
             for (const prop in todoStatus) {
                 const column = todoStatus[prop];
                 const todos = [...column.items];
@@ -79,13 +80,14 @@ export default function KanbanBoard({ project }) {
             }
             
         };
-
+        console.log('before or after fetch')
+        console.log(userTasks)
         setColumns(todoStatus);
 
-    }, [userTodos]);
+    }, [userTasks]);
 
     function handleSave(e) {
-        let todoList = structuredClone(userTodos);
+        let todoList = structuredClone(userTasks);
         for (const prop in columns) {
             for (const td of columns[prop].items) {
                 if (td) {
@@ -96,13 +98,14 @@ export default function KanbanBoard({ project }) {
                     })
                     .then(res=> res.json())
                     .then(data => {
+                        console.log('after fetch')
                         const [todoToReplace] = todoList.filter(todo => todo.id == data.id);
-                        todoList = JSON.parse(JSON.stringify(todoList.slice(todoList.indexOf(todoToReplace), 1, data)));
+                        todoList.splice(todoList.indexOf(todoToReplace), 1, data);
                     })
                 }
             }
-        }
-        setUserTodos(todoList);
+        };
+        setUserTasks(todoList);
     }
 
     return (

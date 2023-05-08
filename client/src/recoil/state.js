@@ -84,7 +84,13 @@ export const teamOpts = selector({
         const teams = get(teamSelectList);
         const optList = [];
         for (const team in teams) {
-            optList.push({value: team, label: team.name})
+            optList.push({
+                value: {
+                    id: team.id,
+                    name: team.name,
+                    company: team.company
+                },
+                label: team.name})
         };
         return optList;
     }
