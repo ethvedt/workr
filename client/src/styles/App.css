@@ -70,6 +70,7 @@ span > p {
     min-height: 600px;
     width: fit-content;
 }
+
 .kanban-board > p {
     text-align: center;
 }
