@@ -27,6 +27,7 @@ export default function ProjectList() {
 
     return (
         <div className='project-list'>
+            <Link to='new'>New Project</Link>
             <table>
                 <thead>
                     <tr>

@@ -42,17 +42,19 @@ export default function App() {
   }, [])
 
   useEffect(() => {
-    fetch(`/users/${user.id}/projects`)
-    .then(res => res.json())
-    .then(p => setProjects(p));
-
-    fetch(`/users/${user.id}/teams`)
-    .then(res => res.json())
-    .then(t => setTeams(t));
-    
-    fetch(`/users/${user.id}/todos`)
-    .then(res => res.json())
-    .then(td => setTodos(td));
+    if (user.id !== null) {
+      fetch(`/users/${user.id}/projects`)
+      .then(res => res.json())
+      .then(p => setProjects(p));
+  
+      fetch(`/users/${user.id}/teams`)
+      .then(res => res.json())
+      .then(t => setTeams(t));
+      
+      fetch(`/users/${user.id}/todos`)
+      .then(res => res.json())
+      .then(td => setTodos(td));
+    }
     
   }, [user]);
 

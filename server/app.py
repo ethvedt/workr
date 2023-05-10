@@ -97,7 +97,7 @@ api.add_resource(UsersById, '/users/<int:id>')
 class ProjectsByUserId(Resource):
     def get(self, id):
         p_list = Project.query.filter(Project.users.any(User.id == id)).all()
-        return make_response(list(map(lambda c: c.to_dict(only=('id', 'title', 'team.id', 'users.username', 'todos.id', 'todos.title', 'todos.status', 'todos.due_date')), p_list)), 200)
+        return make_response(list(map(lambda c: c.to_dict(only=('id', 'title', 'team.id','team.name', 'users.username', 'users.id', 'todos.id', 'todos.title', 'todos.status', 'todos.due_date')), p_list)), 200)
     
 api.add_resource(ProjectsByUserId, '/users/<int:id>/projects')
 
@@ -152,9 +152,9 @@ class ProjectMembersByProjectId(Resource):
         
         return make_response(list(map(lambda c: c.to_dict(), pm)), 200)
     
-    def post(self):
+    def post(self, id):
         req=request.get_json()
-        pm = ProjectMember(project_id=req['project_id'], user_id=req['user_id'], user_role=req['user_role'])
+        pm = ProjectMember(project_id=id, user_id=req['user_id'], user_role=req['user_role'])
         db.session.add(pm)
         db.session.commit()
         return pm.to_dict(), 200
@@ -224,6 +224,12 @@ class Teams(Resource):
         return list(map(lambda c: c.to_dict(), t)), 200
 
 api.add_resource(Teams, '/teams')
+
+class TeamMembers(Resource):
+    def post(self):
+        req = request.get_json()
+        tm = TeamMember(team_id=req['team_id'], user_id=session['user_id'], user_role=req['user_role'])
+
 
 if __name__ == '__main__':
     app.run(port=5555, debug=True)

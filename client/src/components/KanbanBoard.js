@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import { useRecoilValue, useRecoilState } from 'recoil';
-import { userProjectsAtom, userTodosAtom } from '../recoil/state';
+import { userAtom, userTodosAtom } from '../recoil/state';
 
 
 
@@ -46,66 +46,86 @@ function handleDragEnd(result, columns, setColumns) {
 
 export default function KanbanBoard({ project }) {
 
-    const [userTodos, setUserTodos] = useRecoilState(userTodosAtom);
-    const [userTasks, setUserTasks] = useState(userTodos);
-    const [columns, setColumns] = useState({});
+    const user = useRecoilValue(userAtom);
+    const [columns, setColumns] = useState({
+        notStarted: {
+            name: 'Not Started',
+            items: []
+        },
+        inProgress: {
+            name: 'In Progress',
+            items: []
+        },
+        testing: {
+            name: 'Testing',
+            items: []
+        },
+        complete: {
+            name: 'Complete',
+            items: []
+        },
+    });
     
     useEffect(() => {
-        const todoStatus = {
-            notStarted: {
-                name: 'Not Started',
-                items: []
-            },
-            inProgress: {
-                name: 'In Progress',
-                items: []
-            },
-            testing: {
-                name: 'Testing',
-                items: []
-            },
-            complete: {
-                name: 'Complete',
-                items: []
-            },
-        };
-        console.log(userTasks)
-        for (const td of userTasks) {
-            for (const prop in todoStatus) {
-                const column = todoStatus[prop];
-                const todos = [...column.items];
-                if(td.project_id == project.id && !(td in todos) && (td.status == column.name.toLowerCase())) {
-                    todoStatus[prop].items.push(td);
+        fetch(`/projects/${project.id}/todos`)
+        .then((res) => res.json())
+        .then(data => {
+            updateColumns(data);
+        })
+    }, [user])
+
+    function updateColumns(taskList) {
+        let columnsCopy = structuredClone(columns);
+        console.log(taskList);
+        for (const td of taskList) {
+            for (const prop in columnsCopy) {
+                const column = columnsCopy[prop];
+                const todos = structuredClone(column.items);
+                if (td.status == column.name.toLowerCase()) {
+                    if (!(todos.some(el => el.id == td.id ))) {
+                        columnsCopy = {
+                            ...columnsCopy,
+                            [prop] : {
+                                ...column,
+                                items: [...todos, td]
+                            }
+                        }
+                    }
+                    else {
+                        const [todoToReplace] = todos.filter(todo => todo.id == td.id);
+                        todos.splice(todos.indexOf(todoToReplace), 1, td);
+                        columnsCopy = {
+                            ...columnsCopy,
+                            [prop] : {
+                                ...column,
+                                items: [...todos]
+                            }
+                        }
+                        
+                    }
                 }
             }
-            
-        };
-        console.log('before or after fetch')
-        console.log(userTasks)
-        setColumns(todoStatus);
-
-    }, [userTasks]);
+        }
+        setColumns(columnsCopy)
+    }
 
     function handleSave(e) {
-        let todoList = structuredClone(userTasks);
+        const tdList = [];
+        const fetches = [];
         for (const prop in columns) {
             for (const td of columns[prop].items) {
-                if (td) {
+                fetches.push(
                     fetch(`/todos/${td.id}`, {
                         method: 'PATCH',
                         headers: {'Content-Type' : 'application/json'},
                         body: JSON.stringify(td)
                     })
-                    .then(res=> res.json())
-                    .then(data => {
-                        console.log('after fetch')
-                        const [todoToReplace] = todoList.filter(todo => todo.id == data.id);
-                        todoList.splice(todoList.indexOf(todoToReplace), 1, data);
-                    })
-                }
+                    .then(res => res.json())
+                    .then(data => tdList.push(data))
+                )
             }
-        };
-        setUserTasks(todoList);
+        }
+        Promise.all(fetches).then(() => updateColumns(tdList));
     }
 
     return (
