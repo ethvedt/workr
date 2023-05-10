@@ -46,7 +46,6 @@ function handleDragEnd(result, columns, setColumns) {
 
 export default function KanbanBoard({ project }) {
 
-    const user = useRecoilValue(userAtom);
     const [columns, setColumns] = useState({
         notStarted: {
             name: 'Not Started',
@@ -70,40 +69,56 @@ export default function KanbanBoard({ project }) {
         fetch(`/projects/${project.id}/todos`)
         .then((res) => res.json())
         .then(data => {
-            updateColumns(data);
+            updateColumns(data, 'post');
         })
-    }, [user])
+    }, [project])
 
-    function updateColumns(taskList) {
+    function updateColumns(taskList, method) {
         let columnsCopy = structuredClone(columns);
-        console.log(taskList);
         for (const td of taskList) {
             for (const prop in columnsCopy) {
                 const column = columnsCopy[prop];
                 const todos = structuredClone(column.items);
                 if (td.status == column.name.toLowerCase()) {
-                    if (!(todos.some(el => el.id == td.id ))) {
-                        columnsCopy = {
-                            ...columnsCopy,
-                            [prop] : {
-                                ...column,
-                                items: [...todos, td]
-                            }
-                        }
+                    switch (method) {
+                        case 'post':
+                                if (!(todos.some(el => el.id == td.id ))) {
+                                    columnsCopy = {
+                                        ...columnsCopy,
+                                        [prop] : {
+                                            ...column,
+                                            items: [...todos, td]
+                                        }
+                                    }
+                                }
+                                break;
+                                case 'patch':
+                                    const [todoToReplace] = todos.filter(todo => todo.id == td.id);
+                                    todos.splice(todos.indexOf(todoToReplace), 1, td);
+                                    columnsCopy = {
+                                        ...columnsCopy,
+                                        [prop] : {
+                                            ...column,
+                                            items: [...todos]
+                                        }
+                                    };
+                                    break;
+                                    case 'delete':
+                                        const [todoToDelete] = todos.filter(todo => todo.id == td.id);
+                                        if (!todoToDelete) {
+                                            break;
+                                        }
+                                        todos.splice(todos.indexOf(todoToDelete), 1);
+                                        columnsCopy = {
+                                            ...columnsCopy,
+                                            [prop] : {
+                                                ...column,
+                                                items: [...todos]
+                                            }
+                                        };
+                                        break;
                     }
-                    else {
-                        const [todoToReplace] = todos.filter(todo => todo.id == td.id);
-                        todos.splice(todos.indexOf(todoToReplace), 1, td);
-                        columnsCopy = {
-                            ...columnsCopy,
-                            [prop] : {
-                                ...column,
-                                items: [...todos]
-                            }
-                        }
-                        
-                    }
-                }
+                };
             }
         }
         setColumns(columnsCopy)
@@ -125,7 +140,18 @@ export default function KanbanBoard({ project }) {
                 )
             }
         }
-        Promise.all(fetches).then(() => updateColumns(tdList));
+        Promise.all(fetches).then(() => updateColumns(tdList, 'patch'));
+    }
+
+    function handleDelete(todo) {
+        fetch(`/todos/${todo.id}`, {
+            method: 'DELETE'
+        })
+        .then((res) => {
+            if (res.ok) {
+                updateColumns([todo], 'delete');
+            }
+        })
     }
 
     return (
@@ -167,8 +193,17 @@ export default function KanbanBoard({ project }) {
                                                                 {...provided.dragHandleProps}
                                                                 >
                                                                     <p>{item?.title}</p>
-                                                                    <p>{item?.status}</p>
                                                                     <p>{item?.due_date}</p>
+                                                                    {(() => {
+                                                                        const users = project.users;
+                                                                        const username = users.map((user) => {
+                                                                            if (user.id == item.user_id) {
+                                                                                return user.username
+                                                                            }
+                                                                        });
+                                                                        return (<p>{username}</p>);
+                                                                    })()}
+                                                                    <button onClick={(e) => handleDelete(item)}>Delete</button>
                                                                 </div>
                                                             )
                                                         }}

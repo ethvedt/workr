@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom'
-import { useRecoilValue } from 'recoil';
+import { useRecoilState } from 'recoil';
 import { selectedProject, userProjectsAtom } from '../recoil/state';
 import KanbanBoard from './KanbanBoard';
 import { Formik, Field, Form, ErrorMessage } from 'formik';
@@ -57,11 +57,11 @@ function TodoForm({ handleSubmit, projectId }) {
         </Formik>)
 }
 
-function UserForm({ handleSubmit, projectId, users }) {
+function UserForm({ handleSubmit, users }) {
 
     const formSchema = yup.object().shape({
-        user: yup.string().required(),
-        user_role: yup.string().required()
+        user_id: yup.number(),
+        user_role: yup.string()
     });
 
     const initialValues = {
@@ -80,13 +80,13 @@ function UserForm({ handleSubmit, projectId, users }) {
                     <label htmlFor='user_id'>User</label>
                     <Field id='user_id' name='user_id' as='select'>
                         {users.map(user => {
-                            return (<option key={user.id} value={user.id}>{user.name}</option>)
+                            return (<option key={user.id} value={user.id}>{user.username}</option>)
                         })}
                     </Field>
                     <ErrorMessage name='user' />
 
                     <label htmlFor='user_role'>User Role</label>
-                    <Field id='user_role' name='user_role' as='select' placeholder='Pick a role...'>
+                    <Field id='user_role' name='user_role' as='select' >
                         <option value='senior'>Senior</option>
                         <option value='junior'>Junior</option>
                     </Field>
@@ -100,31 +100,59 @@ function UserForm({ handleSubmit, projectId, users }) {
 export default function Project() {
 
     let { projectId } = useParams();
-    const projects = useRecoilValue(userProjectsAtom);
-    const [users, setUsers] = useState([]);
+    const [projects, setProjects] = useRecoilState(userProjectsAtom);
     const [taskButton, setTaskButton] = useState(false);
     const [userButton, setUserButton] = useState(false);
     const [currentProject, setCurrentProject] = useState(projects.filter(project => project.id == projectId)[0]);
+    const [allUsers, setAllUsers] = useState([]);
 
-    console.log(currentProject);
+    useEffect(() => {
+        fetch('/users')
+        .then(res => res.json())
+        .then((data) => {
+            setAllUsers(data);
+        })
+    },[])
+
     function handleTaskSubmit(vals) {
         fetch('/todos', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(vals)
         })
-        .then(res => res.json())
-        .then(data => console.log(data))
+        .then((res) => {
+            if (res.ok) {
+                return res.json();
+            }
+            throw new Error('Task submission failed!')
+        })
+        .then(todo => {
+            const projectsCopy = structuredClone(projects);
+            const oldProject = projectsCopy.find(project => project.id == projectId);
+            const oldProjectIndex = projectsCopy.indexOf(oldProject);
+            oldProject.todos.push(todo);
+            setProjects(projectsCopy);
+            setCurrentProject(oldProject);
+        })
+        .catch((error) => alert(error.message))
     }
-
+    
     function handleUserSubmit(vals) {
+        console.log(vals)
         fetch(`/projects/${projectId}/members`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(vals)
         })
         .then(res => res.json())
-        .then(data => console.log(data))
+        .then((data) => {
+            const projectsCopy = structuredClone(projects);
+            const oldProject = projectsCopy.find(project => project.id == projectId);
+            const oldProjectIndex = projectsCopy.indexOf(oldProject);
+            projectsCopy.splice(oldProjectIndex, 1, data);
+            setProjects(projectsCopy);
+            setCurrentProject(data);
+        })
     }
 
     return (
@@ -155,7 +183,7 @@ export default function Project() {
                     </div>
                     <div className='user-button-container'>
                         {userButton ? 
-                            <UserForm handleSubmit={handleUserSubmit} projectId={projectId} users={users}/> :
+                            <UserForm handleSubmit={handleUserSubmit} users={allUsers}/> :
                             null}
                         <button onClick={(e) => {
                             e.preventDefault();

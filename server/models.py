@@ -124,7 +124,6 @@ class Todo(DefaultBase):
     status = db.Column(db.String, server_default='not started')
     due_date = db.Column(db.Date, default=default_due_date)
 
-    
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
     project_id = db.Column(db.Integer, db.ForeignKey('projects.id'))
 

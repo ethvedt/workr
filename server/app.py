@@ -153,10 +153,12 @@ class ProjectMembersByProjectId(Resource):
     
     def post(self, id):
         req=request.get_json()
-        pm = ProjectMember(project_id=id, user_id=req['user_id'], user_role=req['user_role'])
-        db.session.add(pm)
-        db.session.commit()
-        return pm.to_dict(), 200
+        if not ProjectMember.query.filter(ProjectMember.project_id==id).filter(ProjectMember.user_id==req['user_id']).first():
+            pm = ProjectMember(project_id=id, user_id=req['user_id'], user_role=req['user_role'])
+            db.session.add(pm)
+            db.session.commit()
+        project = Project.query.filter(Project.id == id).first()
+        return make_response(project.to_dict(only=('id', 'title', 'team.id','team.name', 'users.username', 'users.id', 'todos.id', 'todos.title', 'todos.status', 'todos.due_date')), 200)
     
 api.add_resource(ProjectMembersByProjectId, '/projects/<int:id>/members')
 
