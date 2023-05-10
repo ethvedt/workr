@@ -43,8 +43,7 @@ if __name__ == '__main__':
         for t in range(5):
             role_list = ['owner', 'manager', 'senior', 'junior']
             users = []
-            for u in range(4):
-                users.append(fake.random_elements(elements=uList, unique=True, length=1)[0])
+            users = fake.random_elements(elements=uList, unique=True, length=4)
             owner = rc(users)
             team = Team(name=fake.word(), company=fake.unique.company(), user_id=owner.id)
             db.session.add(team)

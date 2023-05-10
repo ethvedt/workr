@@ -104,7 +104,6 @@ api.add_resource(ProjectsByUserId, '/users/<int:id>/projects')
 class TeamsByUserId(Resource):
     def get(self, id):
         t_list = Team.query.filter(Team.users.any(id == id)).all()
-        
         return make_response(list(map(lambda c: c.to_dict(only=('id', 'name', 'company', 'users.username', 'users.id')), t_list)), 200)
     
 api.add_resource(TeamsByUserId, '/users/<int:id>/teams')
