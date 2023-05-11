@@ -39,6 +39,7 @@ button {
     color:rgb(214, 214, 214);
     font-size: 1.25em;
     border-width: 0px;
+    margin: 5px;
 }
 
 a, a:visited, a:hover, a:active {
@@ -212,4 +213,12 @@ form {
 
 .project-card > a {
     display: block;
+}
+
+.react-calendar__navigation__label__labelText {
+    color: black;
+}
+
+.topbar > h1 {
+    font-size: 3em;
 }
