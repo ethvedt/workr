@@ -1,12 +1,22 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useRecoilValue } from 'recoil';
+import { useNavigate } from "react-router-dom";
 import Calendar from 'react-calendar';
-import { userTodosAtom } from '../recoil/state';
+import { userTodosAtom, loggedIn } from '../recoil/state';
 import 'react-calendar/dist/Calendar.css';
 
 export default function CalendarPage() {
 
     const todos = useRecoilValue(userTodosAtom);
+    const login = useRecoilValue(loggedIn);
+    const navigate = useNavigate();
+    
+    useEffect(() => {
+        if (!login) {
+            navigate('/login');
+        }
+    }, [])
+
 
     function isSameDay(d1, d2) {
         return d1.getMonth() == d2.getMonth() && d1.getDate() == d2.getDate();

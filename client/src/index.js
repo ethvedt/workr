@@ -26,10 +26,6 @@ const route = createBrowserRouter([
         element: <App />,
         children: [
             {
-                path: 'home',
-                element: <Home />
-            },
-            {
                 path: 'calendar',
                 element: <CalendarPage />
             },
