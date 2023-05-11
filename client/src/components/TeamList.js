@@ -36,12 +36,22 @@ function UserForm({ teamId, users, method }) {
                     headers: { 'Content-type' : 'application/json'},
                     body: JSON.stringify(vals)
                 })
-                .then(res => res.json())
-                .then(team => setTeams((prevState) => [...prevState, team]))
+                .then(res => {
+                    if (res.ok) {
+                        return res.json()
+                    }
+                    return res.json().then(res => {throw new Error(res.error)})
+                })
+                .then(team => {
+                    const tListCopy = structuredClone(tList);
+                    const tToReplace = tList.find(t => t.id == team.id);
+                    tListCopy.splice(tListCopy.indexOf(tToReplace), 1, team);
+                    setTeams(tListCopy)})
                 .then(fetch(`/users/${user.id}/projects`)
                         .then(res => res.json())
                         .then(p => setProjects(p))
                     )
+                .catch((error) => alert(error.message))
                 break;
             case 'delete':
                 fetch(`/teams/${teamId}/members`, {
@@ -197,7 +207,7 @@ export default function TeamList() {
                         const userRole = team.team_members.find(tm => tm.user_id == currentUser.id).user_role;
                         if ( ['owner', 'manager'].includes(userRole) ) {
                             return (
-                                <div>
+                                <div className='team-buttons'>
                                     {addUserVis[team.id] ?
                                         <div>
                                             <UserForm teamId={team.id} users={allUsers} method='post'/> 
@@ -247,9 +257,11 @@ export default function TeamList() {
                         {projects}
                     </tbody>
                 </table>
-                {deleteButton[team.id] ? 
+                {team.team_members.find(tm => tm.user_id == currentUser.id).user_role == 'owner' ? 
+                deleteButton[team.id] ? 
                 <button onClick={(e) => handleTeamDelete(team.id)}>Are you sure?</button> :
                 <button onClick={(e) => setDeleteButton((p) => ({...p, [team.id] : !p[team.id]}))}>Delete this team.</button>
+                 : null
                 }
             </div>
         )

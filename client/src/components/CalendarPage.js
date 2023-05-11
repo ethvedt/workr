@@ -20,7 +20,8 @@ export default function CalendarPage() {
                     <div key={todo.id} style={{
                         border: '1px solid black',
                         background: 'antiquewhite',
-                        margin: '1px'
+                        margin: '1px',
+                        color: 'black',
                         }}>
                         <p>{todo.title}</p>
                         <p>{todo.status}</p>

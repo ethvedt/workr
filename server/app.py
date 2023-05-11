@@ -147,6 +147,11 @@ class Projects(Resource):
         for u in uList:
             if not u.id == session['user_id']:
                 tm = TeamMember.query.filter(TeamMember.user_id == u.id).filter(TeamMember.team_id == req['team_id']).first()
+                if tm.user_role == 'manager':
+                    u_pm = ProjectMember(project_id = p.id, user_id = u.id, user_role='senior') 
+                    db.session.add(u_pm)
+                    db.session.commit() 
+                    return make_response(p.to_dict(only=('id', 'title', 'team.id','team.name', 'users.username', 'users.id', 'todos.id', 'todos.title', 'todos.status', 'todos.due_date')), 200)
                 u_pm = ProjectMember(project_id = p.id, user_id = u.id, user_role=tm.user_role)
                 db.session.add(u_pm)
         db.session.commit()
@@ -249,6 +254,9 @@ api.add_resource(TeamById, '/teams/<int:id>')
 class TeamMembersByTeamId(Resource):
     def post(self, id):
         req = request.get_json()
+        tm_exists = TeamMember.query.filter(TeamMember.team_id == id).filter(TeamMember.user_id == req['user_id']).first()
+        if tm_exists:
+            return make_response({'error': 'Error 400: User is already in team'}, 400)
         tm = TeamMember(team_id=id, user_id=req['user_id'], user_role=req['user_role'])
         db.session.add(tm)
         db.session.commit()
@@ -264,8 +272,16 @@ class TeamMembersByTeamId(Resource):
     def delete(self, id):
         req = request.get_json()
         tm = TeamMember.query.filter(TeamMember.team_id == id).filter(TeamMember.user_id == req['user_id']).first()
-        ProjectMember.query.filter(ProjectMember.project.team_id == id).filter(ProjectMember.user_id == req['user_id']).delete()
-        Todo.query.filter(Todo.project.team_id == id).filter(Todo.user_id == req['user_id']).delete()
+        pmList = ProjectMember.query.filter(ProjectMember.user_id == req['user_id']).all()
+        for pm in pmList:
+            p = Project.query.filter(Project.team_id == id).first()
+            if p and (p.id == pm.project_id):
+                db.session.delete(pm)
+        tdList = Todo.query.filter(Todo.user_id == req['user_id']).all()
+        for td in tdList:
+            p = Project.query.filter(Project.id == td.project_id).first()
+            if p and (p.id == td.project_id):
+                db.session.delete(td)
         db.session.delete(tm)
         db.session.commit()
         t = Team.query.filter(Team.id == id).first()

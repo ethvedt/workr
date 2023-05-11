@@ -1,6 +1,6 @@
 body {
     background: rgb(51,65,140);
-    background: radial-gradient(circle, rgba(51,65,140,1) 40%, rgb(106, 115, 162) 100%);    color: rgb(214, 214, 214);
+    background: radial-gradient(circle, rgba(51,65,140,1) 40%, rgb(80, 87, 122) 100%);    color: rgb(214, 214, 214);
     border-radius: 5px;
     font-family: sans-serif;
 }
@@ -62,6 +62,7 @@ span > p {
 
 .team-list table {
     width: 100%;
+    margin: 0px;
 }
 
 .teams-container {
@@ -138,6 +139,10 @@ span > p {
     line-height: normal;
 }
 
+.react-calendar abbr {
+    color: black;
+}
+
 .react-calendar .react-calendar__tile--active {
     background: #99b7d5;
     color: black;
@@ -176,4 +181,22 @@ table a {
     color: black;
     font-weight: 200;
     border: 1px solid black;
+}
+
+.team-buttons {
+    margin-left: auto;
+}
+
+.project-buttons > div {
+    margin-bottom: 10px;
+    margin-left: 10px;
+}
+
+form {
+    margin-bottom: 10px;
+    display: flex;
+    background-color: #8e95c4;
+    color: black;
+    padding: 10px;
+    
 }
