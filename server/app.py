@@ -97,14 +97,14 @@ api.add_resource(UsersById, '/users/<int:id>')
 class ProjectsByUserId(Resource):
     def get(self, id):
         p_list = Project.query.filter(Project.users.any(User.id == id)).all()
-        return make_response(list(map(lambda c: c.to_dict(only=('id', 'title', 'team.id','team.name', 'users.username', 'users.id', 'todos.id', 'todos.title', 'todos.status', 'todos.due_date')), p_list)), 200)
+        return make_response(list(map(lambda c: c.to_dict(only=('id', 'title', 'team.id','team.name', 'users.username', 'users.id', 'project_members.user_id', 'project_members.user_role', 'todos.id', 'todos.title', 'todos.status', 'todos.due_date')), p_list)), 200)
     
 api.add_resource(ProjectsByUserId, '/users/<int:id>/projects')
 
 class TeamsByUserId(Resource):
     def get(self, id):
         t_list = Team.query.filter(Team.users.any(id == id)).all()
-        return make_response(list(map(lambda c: c.to_dict(only=('id', 'name', 'company', 'users.username', 'users.id')), t_list)), 200)
+        return make_response(list(map(lambda c: c.to_dict(only=('id', 'name', 'company', 'users.username', 'users.id', 'team_members.user_id', 'team_members.user_role')), t_list)), 200)
     
 api.add_resource(TeamsByUserId, '/users/<int:id>/teams')
 
@@ -139,9 +139,10 @@ class Projects(Resource):
         p = Project(user_id = session.user_id, title = req['title'], team_id = req['team_id'])
         db.session.add(p)
         db.session.flush()
-        pm = ProjectMember(project_id = p.id, user_id = session.user_id, user_role = req['user_role'])
+        pm = ProjectMember(project_id = p.id, user_id = session.user_id, user_role = 'owner')
         db.session.add(pm)
         db.session.commit()
+        return make_response(p.to_dict(only=('id', 'title', 'team.id','team.name', 'users.username', 'users.id', 'todos.id', 'todos.title', 'todos.status', 'todos.due_date')), 200)
 
 api.add_resource(Projects, '/projects')
 

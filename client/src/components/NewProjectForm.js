@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Formik, Field, Form, ErrorMessage } from 'formik';
 import * as yup from 'yup';
 import { useRecoilState, useRecoilValue } from 'recoil';
@@ -10,39 +10,31 @@ export default function NewProjectForm() {
     const [projects, setProjects] = useRecoilState(userProjectsAtom);
     const user = useRecoilValue(userAtom);
     const teamList = useRecoilValue(userTeamsAtom);
+    const navigate = useNavigate();
 
     const formSchema = yup.object().shape({
         title: yup.string().required('You need a title for your project.'),
-        team: yup.object({
-            id: yup.number().required(),
-            name: yup.string().required(),
-            company: yup.string().required()
-        })
+        team_id: yup.number().required('Must select a team.')
     })
 
     const teamOptsComponent = teamList?.map(team => {
-        // const teamVal = {
-        //     value: {
-        //         id: team.id,
-        //         name: team.name,
-        //         company: team.company
-        //     },
-        //     label: team.name}
-
         return (<option key={team.id} value={team.id}>{team.name}</option>)
     })
 
     const initialValues = {
         title: '',
-        team: {
-            id: null,
-            name: '',
-            company: ''
-        }
+        team_id: ''
     }
 
     function handleSubmit(vals) {
-        console.log(vals)
+        fetch('/projects', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(vals)
+        })
+        .then(res => res.json())
+        .then(project => setProjects((prevState) => [...prevState, project]))
+        .then(navigate('..'))
     }
 
     return (
@@ -59,10 +51,11 @@ export default function NewProjectForm() {
                         <Field id='title' name='title' />
                         <ErrorMessage name='title' />
 
-                        <label htmlFor='team'>Pick a Team</label>
-                        <Field id='team' name='team' as='select'>
+                        <label htmlFor='team_id'>Pick a Team</label>
+                        <Field id='team_id' name='team_id' as='select'>
                             {teamOptsComponent}
                         </Field>
+                        <button type='submit'>Submit</button>
                     </Form>
 
                 )}
