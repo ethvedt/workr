@@ -92,8 +92,8 @@ class Team(DefaultBase):
     company = db.Column(db.String, nullable=True)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
 
-    projects = db.relationship('Project', backref='team', cascade='all, delete-orphan')
-    team_members = db.relationship('TeamMember', backref='team', cascade='all, delete-orphan')
+    projects = db.relationship('Project', backref='team', cascade='all, delete')
+    team_members = db.relationship('TeamMember', backref='team', cascade='all, delete')
     users = association_proxy('team_members', 'user')
 
 class TeamMember(DefaultBase):

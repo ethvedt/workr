@@ -116,19 +116,43 @@ function UserForm({ teamId, users, method }) {
 
 export default function TeamList() {
     const currentUser = useRecoilValue(userAtom);
-    const tList = useRecoilValue(userTeamsAtom);
-    const pList = useRecoilValue(userProjectsAtom);
+    const [tList, setTList] = useRecoilState(userTeamsAtom);
+    const [pList, setPlist] = useRecoilState(userProjectsAtom);
     const [allUsers, setAllUsers] = useState([]);
     const [addUserVis, setAddUserVis] = useState({});
     const [delUserVis, setDelUserVis] = useState({});
+    const [deleteButton, setDeleteButton] = useState({});
+
 
     useEffect(() => {
         fetch('/users')
         .then(res => res.json())
         .then((data) => {
             setAllUsers(data);
-        })
+        });
     },[])
+
+    function handleTeamDelete(teamId) {
+        fetch(`/teams/${teamId}`, {
+            method: 'DELETE'
+        })
+        .then(res => {
+            if (res.ok) {
+                const tCopy = structuredClone(tList);
+                const tToDel = tCopy.find(t => t.id == teamId);
+                const tToDelIndex = tCopy.indexOf(tToDel);
+                tCopy.splice(tToDelIndex, 1);
+                setTList(tCopy);
+
+                const pCopy = structuredClone(pList);
+                const pDelList = pCopy.filter(p => p.team_id == teamId)
+                for (const p of pDelList) {
+                    pCopy.splice(pCopy.indexOf(p), 1);
+                }
+                setPlist(pCopy);
+            }
+        })
+    }
 
     const team_projects = tList.map((team) => {
         // setAddUserVis((prevState) => ({...prevState, [team.id]: false}))
@@ -223,6 +247,10 @@ export default function TeamList() {
                         {projects}
                     </tbody>
                 </table>
+                {deleteButton[team.id] ? 
+                <button onClick={(e) => handleTeamDelete(team.id)}>Are you sure?</button> :
+                <button onClick={(e) => setDeleteButton((p) => ({...p, [team.id] : !p[team.id]}))}>Delete this team.</button>
+                }
             </div>
         )
     });

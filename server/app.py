@@ -226,7 +226,7 @@ class Teams(Resource):
         tm = TeamMember(team_id=t.id, user_id=session['user_id'], user_role='owner')
         db.session.add(tm)
         db.session.commit()
-        return t.to_dict(), 200
+        return t.to_dict(only=('id', 'name', 'company', 'users.username', 'users.id', 'team_members.user_id', 'team_members.user_role')), 200
     
     def get(self):
         t = Team.query.all()
@@ -234,6 +234,17 @@ class Teams(Resource):
         return list(map(lambda c: c.to_dict(), t)), 200
 
 api.add_resource(Teams, '/teams')
+
+class TeamById(Resource):
+    def delete(self, id):
+        t = Team.query.filter(Team.id == id).first()
+        if not t:
+            return make_response({'error': 'Error 404: Team not found'}, 404)
+        db.session.delete(t)
+        db.session.commit()
+        return make_response('', 204)
+
+api.add_resource(TeamById, '/teams/<int:id>')
 
 class TeamMembersByTeamId(Resource):
     def post(self, id):

@@ -15,6 +15,7 @@ import Login from './components/Login';
 import NewProjectForm from './components/NewProjectForm';
 import UsernameUpdateForm from './components/UsernameUpdateForm';
 import PasswordUpdateForm from './components/PasswordUpdateForm';
+import NewTeamForm from './components/NewTeamForm';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 
@@ -44,6 +45,10 @@ const route = createBrowserRouter([
                     {
                         path: ':teamId',
                         element: <Team />,
+                    },
+                    {
+                        path: 'new',
+                        element: <NewTeamForm />
                     }
                 ]
             },
