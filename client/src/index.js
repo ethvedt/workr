@@ -71,11 +71,11 @@ const route = createBrowserRouter([
                 element: <Login />,
                 children: [
                     {
-                        index: 'username',
+                        path: 'username',
                         element: <UsernameUpdateForm />
                     },
                     {
-                        index: 'password',
+                        path: 'password',
                         element: <PasswordUpdateForm />
                     }
                 ]

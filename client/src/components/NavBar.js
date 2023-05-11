@@ -20,7 +20,8 @@ export default function NavBar() {
 
     return (
         <span className='navbar'>
-            {login ? (<Link to='/login' onClick={handleLogout}>Log out</Link>) : (<Link to='/login'>Log in</Link>)}
+            {login ? (<Link to='/login' onClick={handleLogout}>Log out</Link>) : null}
+            <Link to='/login'>{login ? 'Account Details' : 'Log In'}</Link>
             {/* <Link to='home'><p>Home</p></Link> */}
             <Link to='calendar'><p>Calendar</p></Link>
             <Link to='teams'><p>Teams</p></Link>

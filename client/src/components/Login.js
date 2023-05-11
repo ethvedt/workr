@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link, Outlet } from 'react-router-dom';
 import { useRecoilState, useRecoilValue } from 'recoil';
 import AccountForm from './AccountForm';
@@ -12,7 +12,10 @@ export default function Login() {
     const loggedInBool = useRecoilValue(loggedIn)
     const [loginOrCreate, setLoginOrCreate] = useState(true);
     const [deleteConfirmation, setDeleteConfirmation] = useState(false);
-    const navigate = useNavigate();
+
+    useEffect(() => {
+        setDeleteConfirmation(false)
+    },[])
 
     const formSchemaUsername = yup.object().shape({
         username: yup.string()
@@ -80,11 +83,11 @@ export default function Login() {
                 <h1>Welcome, {user.username}</h1>
                 <Link to={'username'}>Change Username</Link>
                 <Link to={'password'}>Change Password</Link>
-                {() => {
-                    deleteConfirmation ?
-                    <button onClick={handleDelete}>Are you sure?</button> :
-                    <button onClick={() => setDeleteConfirmation(true)}>Delete your account</button>
-                }}
+                {
+                deleteConfirmation ?
+                <button onClick={handleDelete}>Are you sure?</button> :
+                <button onClick={() => setDeleteConfirmation(true)}>Delete your account</button>
+                }
                 <Outlet />
             </div>
         )

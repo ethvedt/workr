@@ -32,9 +32,16 @@ export default function NewProjectForm() {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(vals)
         })
-        .then(res => res.json())
-        .then(project => setProjects((prevState) => [...prevState, project]))
-        .then(navigate('..'))
+        .then(res => {
+            if (res.ok) {
+                return res.json()
+                    .then(project => setProjects((prevState) => [...prevState, project]))
+                    .then(navigate('..'))
+            }
+            else {
+                alert(res.error)
+            }
+        })
     }
 
     return (

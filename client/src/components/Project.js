@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useParams, Link } from 'react-router-dom'
+import { useParams, Link, useNavigate } from 'react-router-dom'
 import { useRecoilState } from 'recoil';
 import { selectedProject, userProjectsAtom } from '../recoil/state';
 import KanbanBoard from './KanbanBoard';
@@ -60,8 +60,8 @@ function TodoForm({ handleSubmit, projectId }) {
 function UserForm({ handleSubmit, users }) {
 
     const formSchema = yup.object().shape({
-        user_id: yup.number(),
-        user_role: yup.string()
+        user_id: yup.number().required('Must select a user.'),
+        user_role: yup.string().required('Must select a role.')
     });
 
     const initialValues = {
@@ -103,8 +103,10 @@ export default function Project() {
     const [projects, setProjects] = useRecoilState(userProjectsAtom);
     const [taskButton, setTaskButton] = useState(false);
     const [userButton, setUserButton] = useState(false);
+    const [deleteButton, setDeleteButton] = useState(false);
     const [currentProject, setCurrentProject] = useState(projects.filter(project => project.id == projectId)[0]);
     const [allUsers, setAllUsers] = useState([]);
+    const navigate = useNavigate();
 
     useEffect(() => {
         fetch('/users')
@@ -112,6 +114,7 @@ export default function Project() {
         .then((data) => {
             setAllUsers(data);
         })
+        setDeleteButton(false);
     },[])
 
     function handleTaskSubmit(vals) {
@@ -133,6 +136,7 @@ export default function Project() {
             oldProject.todos.push(todo);
             setProjects(projectsCopy);
             setCurrentProject(oldProject);
+            setTaskButton(false);
         })
         .catch((error) => alert(error.message))
     }
@@ -152,6 +156,25 @@ export default function Project() {
             projectsCopy.splice(oldProjectIndex, 1, data);
             setProjects(projectsCopy);
             setCurrentProject(data);
+            setUserButton(false);
+        })
+    }
+
+    function handleDelete() {
+        fetch(`/projects/${projectId}`, {
+            method: 'DELETE'
+        })
+        .then(res => {
+            if (res.ok) {
+                const projList = structuredClone(projects);
+                const oldProj = projList.filter(project => project.id == projectId)[0];
+                projList.splice(projList.indexOf(oldProj), 1);
+                setProjects(projList);
+                navigate('..')
+            }
+            else {
+                alert(res.json().error)
+            }
         })
     }
 
@@ -190,6 +213,12 @@ export default function Project() {
                             setUserButton((prevState) => !prevState);
                             }}
                         >{userButton ? 'Hide Form' :'Add User'}</button>
+                    </div>
+                    <div className='delete-project-button-container'>
+                        {deleteButton ?
+                            <button onClick={handleDelete}>Are you sure?</button> :
+                            <button onClick={(e) => {setDeleteButton(prev => !prev)}}>Delete Project</button>
+                        }
                     </div>
                 </div>
             </span>

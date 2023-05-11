@@ -138,11 +138,17 @@ api.add_resource(ProjectById, '/projects/<int:id>')
 class Projects(Resource):
     def post(self):
         req = request.get_json()
-        p = Project(user_id = session.user_id, title = req['title'], team_id = req['team_id'])
+        p = Project(user_id = session['user_id'], title = req['title'], team_id = req['team_id'])
         db.session.add(p)
         db.session.flush()
-        pm = ProjectMember(project_id = p.id, user_id = session.user_id, user_role = 'owner')
+        pm = ProjectMember(project_id = p.id, user_id = session['user_id'], user_role = 'owner')
         db.session.add(pm)
+        uList = User.query.filter(User.team_members.any(TeamMember.team_id == req['team_id'])).all()
+        for u in uList:
+            if not u.id == session['user_id']:
+                tm = TeamMember.query.filter(TeamMember.user_id == u.id).filter(TeamMember.team_id == req['team_id']).first()
+                u_pm = ProjectMember(project_id = p.id, user_id = u.id, user_role=tm.user_role)
+                db.session.add(u_pm)
         db.session.commit()
         return make_response(p.to_dict(only=('id', 'title', 'team.id','team.name', 'users.username', 'users.id', 'todos.id', 'todos.title', 'todos.status', 'todos.due_date')), 200)
 
