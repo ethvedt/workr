@@ -1,17 +1,45 @@
 body {
-    background-color: rgb(58, 35, 186);
-    color: rgb(214, 214, 214);
-    border-radius: 10px;
+    background: rgb(51,65,140);
+    background: radial-gradient(circle, rgba(51,65,140,1) 40%, rgb(106, 115, 162) 100%);    color: rgb(214, 214, 214);
+    border-radius: 5px;
+    font-family: sans-serif;
+}
+
+div {
+    border-radius: 5px;
 }
 
 .navbar p {
-    color:rgb(214, 214, 214)
+    color:rgb(214, 214, 214);
+    font-size: 1.5em;
 }
 
 .navbar a {
     background-color: rgb(106, 106, 106);
     width:fit-content;
+    padding: 1px 45px;
+    border-radius: 40px;
+}
+
+a {
+    background-color: rgb(106, 106, 106);
+    width:fit-content;
     padding: 5px 25px;
+    border-radius: 5px;
+    text-decoration: none;
+}
+
+button {
+    background-color: rgb(106, 106, 106);
+    width:fit-content;
+    padding: 5px 25px;
+    border-radius: 5px;
+    color:rgb(214, 214, 214);
+    font-size: 1.25em;
+}
+
+a, a:visited, a:hover, a:active {
+    color: inherit;
 }
 
 span {
@@ -30,6 +58,10 @@ span > p {
     justify-content: space-evenly;
     margin: 40px;
     color: black;
+}
+
+.team-list table {
+    width: 100%;
 }
 
 .teams-container {
@@ -60,6 +92,7 @@ span > p {
     border: 1px solid red;
     background-color: whitesmoke;
     color: black;
+    text-align: center;
 }
 
 .kanban-board .column-container {
@@ -69,14 +102,12 @@ span > p {
     margin: 10px;
     min-height: 600px;
     width: fit-content;
+    height: fit-content;
 }
 
-.kanban-board > p {
-    text-align: center;
-}
-
-.droppable {
-    margin: 8px
+.column > div > div {
+    margin: 8px;
+    background-color: #8e95c4;
 }
 
 .column {
@@ -90,11 +121,6 @@ span > p {
 .column div {
     border: 1px solid purple;
     min-height: 30px;
-}
-
-.project-list {
-    background-color: whitesmoke;
-    color: black;
 }
 
 .team-list h3 {
@@ -116,4 +142,38 @@ span > p {
     background: #99b7d5;
     color: black;
     
-  }
+}
+
+table {
+    background-color: gray;
+    color:rgb(214, 214, 214);
+    border-collapse: collapse;
+    min-width: 70%;
+    margin: 10px;
+}
+
+thead th {
+    font-size: larger;
+}
+
+tbody tr {
+    background-color: rgb(126, 143, 162);
+    color: black;
+    text-align: center;
+}
+
+tbody tr:nth-child(even) {
+    background-color: rgb(201, 216, 232);
+}
+
+td {
+    padding: 10px;
+    font-size: large;
+}
+
+table a {
+    background-color: #8e95c4;
+    color: black;
+    font-weight: 200;
+    border: 1px solid black;
+}
