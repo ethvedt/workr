@@ -27,11 +27,11 @@ export default function App() {
             username: data.username,
            })
           };
-          if (user.id === null) {
+          if (user.id === null || user.id === undefined) {
             navigate('login');
           }
           else {
-            navigate('home');
+            navigate('login');
           }
         })
       }
@@ -42,14 +42,15 @@ export default function App() {
   }, [])
 
   useEffect(() => {
-    if (user.id !== null) {
+    if (user.id !== null && user.id !== undefined) {
       fetch(`/users/${user.id}/projects`)
       .then(res => res.json())
       .then(p => setProjects(p));
   
       fetch(`/users/${user.id}/teams`)
       .then(res => res.json())
-      .then(t => setTeams(t));
+      .then(t => {
+        setTeams(t)});
       
       fetch(`/users/${user.id}/todos`)
       .then(res => res.json())

@@ -3,6 +3,8 @@ body {
     background: radial-gradient(circle, rgba(51,65,140,1) 40%, rgb(80, 87, 122) 100%);    color: rgb(214, 214, 214);
     border-radius: 5px;
     font-family: sans-serif;
+    width:90%;
+    margin-left: 5%;
 }
 
 div {
@@ -36,6 +38,7 @@ button {
     border-radius: 5px;
     color:rgb(214, 214, 214);
     font-size: 1.25em;
+    border-width: 0px;
 }
 
 a, a:visited, a:hover, a:active {
@@ -65,7 +68,7 @@ span > p {
     margin: 0px;
 }
 
-.teams-container {
+.teams-container, .projects-container {
     overflow-y: scroll;
     height: 80vh;
 }
@@ -112,11 +115,12 @@ span > p {
 }
 
 .column {
-    border: 1px solid black;
     align-items: center;
-    height: 500px;
+    min-height: 500px;
     margin: 10px;
     min-width: 100px;
+    height: fit-content;
+    border-collapse: collapse;
 }
 
 .column div {
@@ -124,7 +128,7 @@ span > p {
     min-height: 30px;
 }
 
-.team-list h3 {
+.team-list h2 {
     text-transform: capitalize;
 }
 
@@ -155,6 +159,7 @@ table {
     border-collapse: collapse;
     min-width: 70%;
     margin: 10px;
+    text-transform: capitalize;
 }
 
 thead th {
@@ -199,4 +204,12 @@ form {
     color: black;
     padding: 10px;
     
+}
+
+.project-card h2 {
+    text-transform: capitalize;
+}
+
+.project-card > a {
+    display: block;
 }

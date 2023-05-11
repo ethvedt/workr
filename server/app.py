@@ -58,6 +58,7 @@ class Users(Resource):
             u = User(username=req['username'], password=req['password'])
             db.session.add(u)
             db.session.commit()
+            session['user_id'] = u.id
             return make_response(u.to_dict(only=('username', 'id')), 200)
         except IntegrityError:
             return make_response({'error': 'error 400: Username already taken!'}, 400)
@@ -76,11 +77,16 @@ class UsersById(Resource):
     def patch(self, id):
         req=request.get_json()
         u = User.query.filter(User.id==id).first()
+        if 'username' not in req.keys():
+            setattr(u, 'password', req['password'])
+            db.session.commit()
+            return u.to_dict(), 200
         if u.auth(req['password']) == False:
             return make_response({'error': 'Authentication failed'}, 401)
-        for (key, value) in req:
-            if (value and u[key]) is not None:
-                u[key] = value
+        print(req)
+        for (key, value) in req.items():
+            if (value and getattr(u, key, None)) is not None:
+                setattr(u, key, value)
         db.session.commit()
         return u.to_dict(), 200
     
@@ -88,8 +94,8 @@ class UsersById(Resource):
         u = User.query.filter(User.id==id).first()
         if not u:
             return make_response('error: 404 User not found', 404)
-        if u.id == session.user_id:
-            session.user_id = None
+        if u.id == session['user_id']:
+            session['user_id'] = None
         db.session.delete(u)
         db.session.commit()
         return make_response('', 204)
@@ -105,7 +111,7 @@ api.add_resource(ProjectsByUserId, '/users/<int:id>/projects')
 
 class TeamsByUserId(Resource):
     def get(self, id):
-        t_list = Team.query.filter(Team.users.any(id == id)).all()
+        t_list = Team.query.filter(Team.users.any(User.id == id)).all()
         return make_response(list(map(lambda c: c.to_dict(only=('id', 'name', 'company', 'users.username', 'users.id', 'team_members.user_id', 'team_members.user_role')), t_list)), 200)
     
 api.add_resource(TeamsByUserId, '/users/<int:id>/teams')
@@ -263,8 +269,12 @@ class TeamMembersByTeamId(Resource):
         projects = Project.query.filter(Project.team_id == id).all()
         if projects:
             for p in projects:
-                pm = ProjectMember(team_id=id, project=p, user_id=req['user_id'])
+                if req['user_role'] == 'manager':
+                    pm = ProjectMember(project=p, user_id=req['user_id'], user_role='senior')
+                else:
+                    pm = ProjectMember(project=p, user_id=req['user_id'], user_role=req['user_role'])
                 db.session.add(pm)
+                db.session.commit()
             db.session.commit()
         t = Team.query.filter(Team.id == id).first()
         return make_response(t.to_dict(only=('id', 'name', 'company', 'users.username', 'users.id', 'team_members.user_id', 'team_members.user_role')), 200)

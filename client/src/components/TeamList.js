@@ -173,10 +173,10 @@ export default function TeamList() {
             const bIndex = roleList.indexOf(team.team_members.find(tm => tm.user_id == b.id).user_role);
             return bIndex - aIndex;
         }).map((user) => {
-            const userRole = team.team_members.find(tm => tm.user_id == user.id).user_role;
+            const userRole = team.team_members.find(tm => tm.user_id == user.id)?.user_role;
 
             return (
-                <p key={user.id}>{user.username}, {userRole}</p>
+                <p key={user.id} style={{textTransform: 'capitalize', fontSize : 'large'}}>{user.username}, {userRole}</p>
             )
         });
         
@@ -199,7 +199,7 @@ export default function TeamList() {
 
         return (
             <div className='team-list' key={team.id}>
-                <h3>{team.name}</h3>
+                <h2>{team.name}</h2>
                 <p>{team.company}</p>
                 <span>
                     {teamUsers}

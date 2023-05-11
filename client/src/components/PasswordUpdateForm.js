@@ -46,7 +46,7 @@ export default function PasswordUpdateForm() {
                 return res.json()
                 .then(user => setUser({id: user.id, username: user.username}))
             }
-            alert(res.error);
+            return res.json().then(err => alert(err.message))
         })
     }
 
