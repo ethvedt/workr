@@ -76,10 +76,12 @@ class UsersById(Resource):
     def patch(self, id):
         req=request.get_json()
         u = User.query.filter(User.id==id).first()
+        if u.auth(req['password']) == False:
+            return make_response({'error': 'Authentication failed'}, 401)
         for (key, value) in req:
-            if u[key] is not None:
+            if (value and u[key]) is not None:
                 u[key] = value
-        db.session
+        db.session.commit()
         return u.to_dict(), 200
     
     def delete(self, id):
@@ -227,10 +229,33 @@ class Teams(Resource):
 
 api.add_resource(Teams, '/teams')
 
-class TeamMembers(Resource):
-    def post(self):
+class TeamMembersByTeamId(Resource):
+    def post(self, id):
         req = request.get_json()
-        tm = TeamMember(team_id=req['team_id'], user_id=session['user_id'], user_role=req['user_role'])
+        tm = TeamMember(team_id=id, user_id=req['user_id'], user_role=req['user_role'])
+        db.session.add(tm)
+        db.session.commit()
+        projects = Project.query.filter(Project.team_id == id).all()
+        if projects:
+            for p in projects:
+                pm = ProjectMember(team_id=id, project=p, user_id=req['user_id'])
+                db.session.add(pm)
+            db.session.commit()
+        t = Team.query.filter(Team.id == id).first()
+        return make_response(t.to_dict(only=('id', 'name', 'company', 'users.username', 'users.id', 'team_members.user_id', 'team_members.user_role')), 200)
+
+    def delete(self, id):
+        req = request.get_json()
+        tm = TeamMember.query.filter(TeamMember.team_id == id).filter(TeamMember.user_id == req['user_id']).first()
+        ProjectMember.query.filter(ProjectMember.project.team_id == id).filter(ProjectMember.user_id == req['user_id']).delete()
+        Todo.query.filter(Todo.project.team_id == id).filter(Todo.user_id == req['user_id']).delete()
+        db.session.delete(tm)
+        db.session.commit()
+        t = Team.query.filter(Team.id == id).first()
+        return make_response(t.to_dict(only=('id', 'name', 'company', 'users.username', 'users.id', 'team_members.user_id', 'team_members.user_role')), 200)
+
+
+api.add_resource(TeamMembersByTeamId, '/teams/<int:id>/members')
 
 
 if __name__ == '__main__':

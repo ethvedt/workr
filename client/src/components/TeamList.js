@@ -1,17 +1,148 @@
-import React from 'react';
-import { useRecoilValue } from 'recoil';
-import { userTeamsAtom, userProjectsAtom } from '../recoil/state';
+import React, { useState, useEffect } from 'react';
+import { useRecoilValue, useSetRecoilState, useRecoilState } from 'recoil';
+import { userTeamsAtom, userProjectsAtom, userAtom } from '../recoil/state';
+import { Formik, Field, Form, ErrorMessage } from 'formik';
+import * as yup from 'yup';
+
+function UserForm({ teamId, users, method }) {
+    const user = useRecoilValue(userAtom);
+    const [tList, setTeams] = useRecoilState(userTeamsAtom);
+    const setProjects = useSetRecoilState(userProjectsAtom);
+
+    const formSchemaPost = yup.object().shape({
+        user_id: yup.number('Must select a user.'),
+        user_role: yup.string()
+    });
+
+    const formSchemaDel = yup.object().shape({
+        user_id: yup.number('Must select a user.')
+    });
+
+    const initialValuesPost = {
+        user_id: '',
+        user_role: ''
+    };
+
+    const initialValuesDel = {
+        user_id: ''
+    };
+
+
+    function handleSubmit(vals, method) {
+        switch (method) {
+            case 'post':
+                fetch(`/teams/${teamId}/members`, {
+                    method: 'POST',
+                    headers: { 'Content-type' : 'application/json'},
+                    body: JSON.stringify(vals)
+                })
+                .then(res => res.json())
+                .then(team => setTeams((prevState) => [...prevState, team]))
+                .then(fetch(`/users/${user.id}/projects`)
+                        .then(res => res.json())
+                        .then(p => setProjects(p))
+                    )
+                break;
+            case 'delete':
+                fetch(`/teams/${teamId}/members`, {
+                    method: 'DELETE',
+                    headers: { 'Content-Type' : 'application/json'},
+                    body: JSON.stringify(vals)
+                })
+                .then(res => res.json())
+                .then((team) => {
+                    const tListCopy = structuredClone(tList);
+                    const [tReplace] = tListCopy.filter(t => t.id == team.id);
+                    const tIndex = tListCopy.indexOf(tReplace);
+                    tListCopy.splice(tIndex, 1, team);
+                    setTeams(tListCopy);
+                })
+        }
+    };
+    if (method == 'post') {
+        return (
+            <Formik
+                initialValues={initialValuesPost}
+                validationSchema={formSchemaPost}
+                onSubmit= {(vals) => handleSubmit(vals, method)}
+            >
+                {props => (
+                    <Form>
+                        <label htmlFor='user_id'>User</label>
+                        <Field id='user_id' name='user_id' as='select'>
+                            {users.map(user => {
+                                return (<option key={user.id} value={user.id}>{user.username}</option>)
+                            })}
+                        </Field>
+                        <ErrorMessage name='user' />
+
+                        <label htmlFor='user_role'>User Role</label>
+                        <Field id='user_role' name='user_role' as='select' >
+                            <option value='owner'>Owner</option>
+                            <option value='manager'>Manager</option>
+                            <option value='senior'>Senior</option>
+                            <option value='junior'>Junior</option>
+                        </Field>
+                        <ErrorMessage name='user_role' />
+                        <button type='submit'>Submit</button>
+                    </Form>
+                )}
+            </Formik>)
+    }
+    else if (method == 'delete') {
+        return (
+            <Formik
+                initialValues={initialValuesDel}
+                validationSchema={formSchemaDel}
+                onSubmit= {(vals) => handleSubmit(vals, method)}
+            >
+                {props => (
+                    <Form>
+                        <label htmlFor='user_id'>User</label>
+                        <Field id='user_id' name='user_id' as='select'>
+                            {users.map(user => {
+                                return (<option key={user.id} value={user.id}>{user.username}</option>)
+                            })}
+                        </Field>
+                        <ErrorMessage name='user' />
+
+                        <button type='submit'>Submit</button>
+                    </Form>
+                )}
+            </Formik>)
+    }
+}
+
 
 export default function TeamList() {
-
+    const currentUser = useRecoilValue(userAtom);
     const tList = useRecoilValue(userTeamsAtom);
     const pList = useRecoilValue(userProjectsAtom);
+    const [allUsers, setAllUsers] = useState([]);
+    const [addUserVis, setAddUserVis] = useState({});
+    const [delUserVis, setDelUserVis] = useState({});
+
+    useEffect(() => {
+        fetch('/users')
+        .then(res => res.json())
+        .then((data) => {
+            setAllUsers(data);
+        })
+    },[])
 
     const team_projects = tList.map((team) => {
+        // setAddUserVis((prevState) => ({...prevState, [team.id]: false}))
+        // setDelUserVis((prevState) => ({...prevState, [team.id]: false}))
+        const teamUsers = structuredClone(team.users).sort((a,b) => {
+            const roleList = ['junior', 'senior', 'manager', 'owner'];
+            const aIndex = roleList.indexOf(team.team_members.find(tm => tm.user_id == a.id).user_role);
+            const bIndex = roleList.indexOf(team.team_members.find(tm => tm.user_id == b.id).user_role);
+            return bIndex - aIndex;
+        }).map((user) => {
+            const userRole = team.team_members.find(tm => tm.user_id == user.id).user_role;
 
-        const teamUsers = team.users.map((user) => {
             return (
-                <p key={user.username+team.name}>{user.username}</p>
+                <p key={user.id}>{user.username}, {userRole}</p>
             )
         });
         
@@ -38,6 +169,46 @@ export default function TeamList() {
                 <p>{team.company}</p>
                 <span>
                     {teamUsers}
+                    {(() => {
+                        const userRole = team.team_members.find(tm => tm.user_id == currentUser.id).user_role;
+                        if ( ['owner', 'manager'].includes(userRole) ) {
+                            return (
+                                <div>
+                                    {addUserVis[team.id] ?
+                                        <div>
+                                            <UserForm teamId={team.id} users={allUsers} method='post'/> 
+                                            <button onClick={(e) => {
+                                                e.preventDefault();
+                                                setAddUserVis((prevState) => ({...prevState, [team.id] : !prevState[team.id]}))
+                                                }}
+                                            >Close Form</button>
+                                        </div> :
+                                        <button onClick={(e) => {
+                                            e.preventDefault();
+                                            setAddUserVis((prevState) => ({...prevState, [team.id] : !prevState[team.id]}))
+                                            }}
+                                        >Add a User</button>
+                                    }
+                                    {delUserVis[team.id] ?
+                                        <div>
+                                        <UserForm teamId={team.id} users={team.users} method='delete'/> 
+                                        <button onClick={(e) => {
+                                            e.preventDefault();
+                                            setDelUserVis((prevState) => ({...prevState, [team.id] : !prevState[team.id]}))
+                                            }}
+                                        >Close Form</button>
+                                        </div>:
+                                        <button onClick={(e) => {
+                                            e.preventDefault();
+                                            setDelUserVis((prevState) => ({...prevState, [team.id] : !prevState[team.id]}))
+                                            }}
+                                        >Remove a User</button>
+                                    }
+                                </div>
+                            )
+                        }
+                    })()}
+
                 </span>
                 <table>
                     <thead>

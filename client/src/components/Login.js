@@ -1,14 +1,25 @@
 import React, { useState } from 'react';
-import { redirect } from 'react-router-dom';
+import { Link, Outlet } from 'react-router-dom';
 import { useRecoilState, useRecoilValue } from 'recoil';
 import AccountForm from './AccountForm';
 import { userAtom, loggedIn } from '../recoil/state'
+import { Formik, Field, Form, ErrorMessage } from 'formik';
+import * as yup from 'yup';
 
 
 export default function Login() {
     const [user, setUser] = useRecoilState(userAtom);
     const loggedInBool = useRecoilValue(loggedIn)
     const [loginOrCreate, setLoginOrCreate] = useState(true);
+    const [deleteConfirmation, setDeleteConfirmation] = useState(false);
+    const navigate = useNavigate();
+
+    const formSchemaUsername = yup.object().shape({
+        username: yup.string()
+            .min(4, 'Username is too short.')
+            .max(32, 'Username is too long.')
+            .matches(/^[a-z0-9]+$/i, 'Must use letters and numbers only.'),
+    })
 
     function handleLogin(vals) {
         fetch('/login', {
@@ -37,7 +48,6 @@ export default function Login() {
                         username: data.username,
                         id: data.id
                     });
-                    redirect('/home');
                 })
             }
             else {
@@ -47,12 +57,36 @@ export default function Login() {
     }
     
     function handleToggle(e) {
-        setLoginOrCreate(!loginOrCreate)
+        setLoginOrCreate((prevState) => !prevState)
+    }
+
+    function handleDelete() {
+        fetch(`/users/${user.id}`, {
+            method: 'DELETE'
+        })
+        .then((res) => {
+            if (res.ok) {
+                setUser({id: null, username: null})
+            }
+            else {
+                alert(res.error)
+            }
+        })
     }
 
     if (loggedInBool) {
         return (
-            <h1>You are already logged in.</h1>
+            <div>
+                <h1>Welcome, {user.username}</h1>
+                <Link to={'username'}>Change Username</Link>
+                <Link to={'password'}>Change Password</Link>
+                {() => {
+                    deleteConfirmation ?
+                    <button onClick={handleDelete}>Are you sure?</button> :
+                    <button onClick={() => setDeleteConfirmation(true)}>Delete your account</button>
+                }}
+                <Outlet />
+            </div>
         )
     }
     else {

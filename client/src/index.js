@@ -13,6 +13,8 @@ import ProjectList from './components/ProjectList';
 import Project from './components/Project';
 import Login from './components/Login';
 import NewProjectForm from './components/NewProjectForm';
+import UsernameUpdateForm from './components/UsernameUpdateForm';
+import PasswordUpdateForm from './components/PasswordUpdateForm';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 
@@ -66,7 +68,17 @@ const route = createBrowserRouter([
             },
             {
                 path: 'login',
-                element: <Login />
+                element: <Login />,
+                children: [
+                    {
+                        index: 'username',
+                        element: <UsernameUpdateForm />
+                    },
+                    {
+                        index: 'password',
+                        element: <PasswordUpdateForm />
+                    }
+                ]
             }
         ]
     }
