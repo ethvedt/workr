@@ -32,7 +32,7 @@ A simple productivity web app that allows multiple users to work together on sha
 
 ## Video Walkthrough
 
-[![Video Walkthrough]({./screenshots/thumbnail.png})]({https://www.loom.com/share/44d8291d1e9a4240aa465b85379444c3?sid=131d8662-97ab-452f-a947-43a64ffa0833} "Video Walkthrough")
+[![Video Walkthrough](./screenshots/thumbnail.png)](https://www.loom.com/share/44d8291d1e9a4240aa465b85379444c3?sid=131d8662-97ab-452f-a947-43a64ffa0833)
 
 
 
