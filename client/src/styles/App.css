@@ -150,7 +150,7 @@ span > p {
 
 .react-calendar__tile p {
     font-size: small;
-    line-height: 0.5em;
+    margin: 2px;
 }
 
 .react-calendar .react-calendar__tile--active {
