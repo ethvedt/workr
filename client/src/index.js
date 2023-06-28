@@ -3,7 +3,6 @@ import ReactDOM from 'react-dom/client';
 import App from './components/App';
 import {RecoilRoot} from 'recoil';
 import { RouterProvider, createBrowserRouter } from 'react-router-dom';
-import Home from './components/Home';
 import CalendarPage from './components/CalendarPage';
 import Teams from './components/Teams';
 import TeamList from './components/TeamList';
