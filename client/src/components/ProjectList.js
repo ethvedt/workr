@@ -7,6 +7,15 @@ export default function ProjectList() {
 
     const pList = useRecoilValue(userProjectsAtom)
 
+    if (pList.length == 0) {
+        return (
+            <>
+                <h3>You have no projects!</h3>
+                <Link to='new'>Start a new project.</Link>
+            </>
+        )
+    }
+
     const projects = pList.map((project) => {
 
         const todoList = Array(...project.todos)

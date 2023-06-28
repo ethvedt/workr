@@ -164,6 +164,10 @@ export default function TeamList() {
         })
     }
 
+    if (tList.length == 0) {
+        return (<h3>You are not in any teams!</h3>)
+    }
+
     const team_projects = tList.map((team) => {
         // setAddUserVis((prevState) => ({...prevState, [team.id]: false}))
         // setDelUserVis((prevState) => ({...prevState, [team.id]: false}))
