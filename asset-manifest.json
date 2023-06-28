@@ -1,0 +1,13 @@
+{
+  "files": {
+    "main.css": "/workr/static/css/main.25c9601d.css",
+    "main.js": "/workr/static/js/main.af3d222b.js",
+    "index.html": "/workr/index.html",
+    "main.25c9601d.css.map": "/workr/static/css/main.25c9601d.css.map",
+    "main.af3d222b.js.map": "/workr/static/js/main.af3d222b.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.25c9601d.css",
+    "static/js/main.af3d222b.js"
+  ]
+}
