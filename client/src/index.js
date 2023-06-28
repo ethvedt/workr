@@ -6,7 +6,6 @@ import { RouterProvider, createBrowserRouter } from 'react-router-dom';
 import Home from './components/Home';
 import CalendarPage from './components/CalendarPage';
 import Teams from './components/Teams';
-import Team from './components/Team';
 import TeamList from './components/TeamList';
 import Projects from './components/Projects';
 import ProjectList from './components/ProjectList';
@@ -37,10 +36,6 @@ const route = createBrowserRouter([
                         index: true,
                         element: <TeamList />
 
-                    },
-                    {
-                        path: ':teamId',
-                        element: <Team />,
                     },
                     {
                         path: 'new',

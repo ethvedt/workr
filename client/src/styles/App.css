@@ -148,10 +148,14 @@ span > p {
     color: black;
 }
 
+.react-calendar__tile p {
+    font-size: small;
+    line-height: 0.5em;
+}
+
 .react-calendar .react-calendar__tile--active {
     background: #99b7d5;
     color: black;
-    
 }
 
 table {
