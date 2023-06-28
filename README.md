@@ -38,7 +38,7 @@ https://www.loom.com/share/44d8291d1e9a4240aa465b85379444c3?sid=131d8662-97ab-45
 
 ### Login
 
-![Login Page](./screenshots/login.png)
+![Login Page](./screenshots/workr-login.png)
 
 You can log in or create a new account here.
 
